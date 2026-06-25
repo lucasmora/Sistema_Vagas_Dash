@@ -1,0 +1,13 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8050:8050"
+    volumes:
+      - vagas_db:/app/data
+    environment:
+      - DB_PATH=/app/data/vagas.db
+    restart: unless-stopped
+
+volumes:
+  vagas_db:
