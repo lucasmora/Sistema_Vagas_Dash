@@ -6,8 +6,9 @@ from dash.exceptions import PreventUpdate
 from models import listar_vagas, atualizar_vaga, get_vaga, listar_tags
 from components.cards import vaga_card
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA, COR_PRIMARY,
-    COR_SUPERFICIE, CARD_STYLE, 
+    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
+    COR_BORDA, COR_BORDA_CLARA, COR_PRIMARY,
+    COR_SUPERFICIE, CARD_STYLE, INPUT_STYLE,
 )
 
 
@@ -34,11 +35,12 @@ def layout() -> html.Div:
             dbc.Col([
                 html.Div([
                     html.H5("Filtros", style={
-                        "color": COR_TEXTO, "marginBottom": "16px", "fontWeight": 600,
+                        "color": COR_TEXTO, "marginBottom": "20px", "fontWeight": 600,
                     }),
                     html.Div([
                         html.Label("Status", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.85rem", "marginBottom": "4px",
+                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                            "marginBottom": "6px", "fontWeight": 500,
                         }),
                         dcc.Checklist(
                             id="filtro-status",
@@ -50,15 +52,22 @@ def layout() -> html.Div:
                             value=[],
                             style={
                                 "backgroundColor": COR_SUPERFICIE,
-                                "border": f"1px solid {COR_BORDA}",
+                                "border": f"1px solid {COR_BORDA_CLARA}",
                                 "borderRadius": "8px",
-                                "padding": "10px",
+                                "padding": "12px",
+                                "color": COR_TEXTO,
+                                "fontSize": "0.875rem",
                             },
+                            inputStyle={"marginRight": "8px", "accentColor": COR_PRIMARY},
+                            labelStyle={"marginBottom": "6px", "display": "block"},
                         ),
-                        html.Br(),
-                        html.Br(),
+                        html.Hr(style={
+                            "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
+                            "opacity": 0.5,
+                        }),
                         html.Label("Portal", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.85rem", "marginBottom": "4px",
+                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                            "marginBottom": "6px", "fontWeight": 500,
                         }),
                         dcc.Dropdown(
                             id="filtro-portal",
@@ -68,12 +77,16 @@ def layout() -> html.Div:
                                 "backgroundColor": COR_SUPERFICIE,
                                 "border": f"1px solid {COR_BORDA}",
                                 "borderRadius": "8px",
+                                "color": COR_TEXTO,
                             },
                         ),
-                        html.Br(),
-                        html.Br(),
+                        html.Hr(style={
+                            "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
+                            "opacity": 0.5,
+                        }),
                         html.Label("Tag", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.85rem", "marginBottom": "4px",
+                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                            "marginBottom": "6px", "fontWeight": 500,
                         }),
                         dcc.Dropdown(
                             id="filtro-tag",
@@ -83,28 +96,25 @@ def layout() -> html.Div:
                                 "backgroundColor": COR_SUPERFICIE,
                                 "border": f"1px solid {COR_BORDA}",
                                 "borderRadius": "8px",
+                                "color": COR_TEXTO,
                             },
                         ),
-                        html.Br(),
-                        html.Br(),
+                        html.Hr(style={
+                            "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
+                            "opacity": 0.5,
+                        }),
                         html.Label("Busca", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.85rem", "marginBottom": "4px",
+                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                            "marginBottom": "6px", "fontWeight": 500,
                         }),
                         dcc.Input(
                             id="filtro-busca",
                             placeholder="Busca por nome, empresa...",
                             type="text",
-                            style={
-                                "width": "100%",
-                                "backgroundColor": COR_SUPERFICIE,
-                                "border": f"1px solid {COR_BORDA}",
-                                "borderRadius": "8px",
-                                "padding": "8px 12px",
-                                "color": COR_TEXTO,
-                            },
+                            style={**INPUT_STYLE, "width": "100%"},
                         ),
                     ]),
-                ], style={**CARD_STYLE, "padding": "20px"}),
+                ], style={**CARD_STYLE}),
             ], width=3),
             dbc.Col(html.Div(id="vagas-lista"), width=9),
         ], className="g-4"),

@@ -1,8 +1,9 @@
 from dash import html
 from styles import (
-    COR_BORDA, COR_TEXTO, COR_TEXTO_SEC, COR_DESTAQUE, COR_PRIMARY,
-    PIPELINE_ORDEM, STATUS_CORES, pipeline_step_style, pipeline_connector_style,
-    badge_style,
+    COR_BORDA_CLARA, COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
+    COR_ELEVADO, COR_DESTAQUE, COR_PRIMARY, COR_PERIGO,
+    PIPELINE_ORDEM, STATUS_CORES, pipeline_step_style,
+    pipeline_connector_style, badge_style,
 )
 
 
@@ -18,7 +19,7 @@ def pipeline_view(status_atual: str) -> html.Div:
     steps = []
     for i, nome_status in enumerate(PIPELINE_ORDEM):
         ativo = i <= idx_atual
-        cor = STATUS_CORES.get(nome_status, COR_BORDA)
+        cor = STATUS_CORES.get(nome_status, COR_BORDA_CLARA)
 
         steps.append(
             html.Div(
@@ -36,6 +37,7 @@ def pipeline_view(status_atual: str) -> html.Div:
                             "marginTop": "6px",
                             "maxWidth": "80px",
                             "lineHeight": 1.2,
+                            "fontWeight": 500 if ativo else 400,
                         },
                     ),
                 ],
@@ -66,7 +68,7 @@ def pipeline_view(status_atual: str) -> html.Div:
                             html.Div(
                                 "R",
                                 style=pipeline_step_style(
-                                    rejeitado_ativo, STATUS_CORES["Rejeitado"]
+                                    rejeitado_ativo, COR_PERIGO
                                 ),
                             ),
                             html.Span(
@@ -81,6 +83,7 @@ def pipeline_view(status_atual: str) -> html.Div:
                                     "marginTop": "6px",
                                     "maxWidth": "80px",
                                     "lineHeight": 1.2,
+                                    "fontWeight": 500 if rejeitado_ativo else 400,
                                 },
                             ),
                         ],
@@ -95,13 +98,13 @@ def pipeline_view(status_atual: str) -> html.Div:
                     "display": "flex",
                     "alignItems": "center",
                     "justifyContent": "center",
-                    "padding": "12px 0",
+                    "padding": "16px 0",
                 },
             ),
             html.Div(
                 children=[
                     html.Span("Status atual: ", style={
-                        "color": COR_TEXTO_SEC, "fontSize": "0.85rem",
+                        "color": COR_TEXTO_MUTED, "fontSize": "0.85rem",
                     }),
                     html.Span(status_atual, style=badge_style(status_atual)),
                 ],
@@ -112,8 +115,9 @@ def pipeline_view(status_atual: str) -> html.Div:
             ),
         ],
         style={
-            "backgroundColor": COR_BORDA,
-            "borderRadius": "12px",
-            "padding": "20px 24px",
+            "backgroundColor": COR_ELEVADO,
+            "borderRadius": "8px",
+            "padding": "24px 24px",
+            "border": f"1px solid {COR_BORDA_CLARA}",
         },
     )

@@ -94,6 +94,21 @@ def get_db() -> Generator[sqlite3.Connection, None, None]:
 def init_db() -> None:
     with get_db() as conn:
         conn.executescript(SCHEMA_SQL)
+    migrar_schema()
+
+
+def migrar_schema() -> None:
+    """Adiciona colunas novas que não existiam no schema original"""
+    migracoes = [
+        "ALTER TABLE vagas ADD COLUMN data_publicacao DATE",
+        "ALTER TABLE vagas ADD COLUMN fonte_id TEXT",
+    ]
+    for sql in migracoes:
+        try:
+            with get_db() as conn:
+                conn.execute(sql)
+        except sqlite3.OperationalError:
+            pass  # coluna já existe
 
 
 def row_to_dict(row: sqlite3.Row) -> dict:

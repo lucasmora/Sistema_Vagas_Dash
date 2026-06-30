@@ -7,8 +7,9 @@ from models import get_vaga, listar_historico, atualizar_vaga, excluir_vaga, get
 from components.pipeline import pipeline_view
 from components.forms import form_editar_vaga, form_nova_vaga
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA, COR_PRIMARY, COR_FUNDO,
-    COR_SUPERFICIE, CARD_STYLE, tag_style,
+    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
+    COR_BORDA_CLARA, COR_PRIMARY, COR_PERIGO, COR_ELEVADO,
+    CARD_STYLE, tag_style, SOMBRA_NIVEL_1,
     COLUNA_ESTILO,
 )
 
@@ -17,16 +18,18 @@ def _info_campo(label, valor):
     if isinstance(valor, str) and (valor.startswith("http://") or valor.startswith("https://")):
         valor_elem = html.A(
             valor, href=valor, target="_blank",
-            style={"color": COR_PRIMARY, "textDecoration": "none", "fontSize": "0.95rem"},
+            style={"color": COR_PRIMARY, "textDecoration": "none",
+                   "fontSize": "0.875rem", "fontWeight": 500},
         )
     else:
         valor_elem = html.P(valor or "—", style={
-            "color": COR_TEXTO, "margin": "4px 0 0 0", "fontSize": "0.95rem",
+            "color": COR_TEXTO, "margin": "4px 0 0 0", "fontSize": "0.875rem",
         })
     return html.Div(
         children=[
             html.Span(label, style={
-                "color": COR_TEXTO_SEC, "fontSize": "0.85rem", "fontWeight": 600,
+                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem", "fontWeight": 600,
+                "textTransform": "uppercase", "letterSpacing": "0.3px",
             }),
             valor_elem,
         ],
@@ -74,6 +77,17 @@ def display_page(pathname):
 def detalhes_vaga(vaga: dict) -> html.Div:
     vaga_id = vaga["id"]
     
+    _BOTAO_DARK = {
+        "color": COR_TEXTO,
+        "border": "none",
+        "borderRadius": "8px",
+        "padding": "12px 32px",
+        "fontWeight": 600,
+        "cursor": "pointer",
+        "transition": "all 0.15s ease",
+        "boxShadow": SOMBRA_NIVEL_1,
+    }
+
     return html.Div([
         html.Div([
             dbc.Row([
@@ -93,16 +107,17 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                             style={
                                 "color": COR_TEXTO_SEC,
                                 "margin": "8px 0 0 0",
-                                "fontSize": "0.9rem",
+                                "fontSize": "0.875rem",
                             },
                         ),
-                    ], style={"marginBottom": "20px"}),
+                    ], style={"marginBottom": "24px"}),
                     dbc.Row([
                         dbc.Col([
                             dbc.Card([
                                 dbc.CardBody([
                                     html.H5("Informações", style={
-                                        "color": COR_TEXTO, "marginBottom": "16px", "fontWeight": 600,
+                                        "color": COR_TEXTO, "marginBottom": "20px",
+                                        "fontWeight": 600, "fontSize": "1.1rem",
                                     }),
                                     dbc.Row([
                                         _info_campo("Nome", vaga.get("nome")),
@@ -129,6 +144,7 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                         style={
                                             "color": COR_TEXTO, "marginBottom": "12px",
                                             "fontWeight": 600, "cursor": "pointer",
+                                            "fontSize": "1.1rem",
                                         },
                                     ),
                                     dbc.Collapse(
@@ -137,13 +153,13 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                             style={
                                                 "width": "100%",
                                                 "height": "150px",
-                                                "backgroundColor": COR_SUPERFICIE,
-                                                "border": f"1px solid {COR_BORDA}",
+                                                "backgroundColor": COR_ELEVADO,
+                                                "border": f"1px solid {COR_BORDA_CLARA}",
                                                 "borderRadius": "8px",
                                                 "padding": "12px",
                                                 "color": COR_TEXTO,
                                                 "resize": "none",
-                                                "fontFamily": "monospace",
+                                                "fontFamily": "var(--font-mono)",
                                             },
                                             readOnly=True,
                                         ),
@@ -163,6 +179,7 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                         style={
                                             "color": COR_TEXTO, "marginBottom": "12px",
                                             "fontWeight": 600, "cursor": "pointer",
+                                            "fontSize": "1.1rem",
                                         },
                                     ),
                                     dbc.Collapse(
@@ -171,13 +188,13 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                             style={
                                                 "width": "100%",
                                                 "height": "150px",
-                                                "backgroundColor": COR_SUPERFICIE,
-                                                "border": f"1px solid {COR_BORDA}",
+                                                "backgroundColor": COR_ELEVADO,
+                                                "border": f"1px solid {COR_BORDA_CLARA}",
                                                 "borderRadius": "8px",
                                                 "padding": "12px",
                                                 "color": COR_TEXTO,
                                                 "resize": "none",
-                                                "fontFamily": "monospace",
+                                                "fontFamily": "var(--font-mono)",
                                             },
                                             readOnly=True,
                                         ),
@@ -193,7 +210,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                             dbc.Card([
                                 dbc.CardBody([
                                     html.H5("Tags", style={
-                                        "color": COR_TEXTO, "marginBottom": "12px", "fontWeight": 600,
+                                        "color": COR_TEXTO, "marginBottom": "12px",
+                                        "fontWeight": 600, "fontSize": "1.1rem",
                                     }),
                                     html.Div([
                                         *[html.Span(tag["nome"] if isinstance(tag, dict) else tag,
@@ -206,7 +224,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                             dbc.Card([
                                 dbc.CardBody([
                                     html.H5("Pipeline", style={
-                                        "color": COR_TEXTO, "marginBottom": "12px", "fontWeight": 600,
+                                        "color": COR_TEXTO, "marginBottom": "12px",
+                                        "fontWeight": 600, "fontSize": "1.1rem",
                                     }),
                                     pipeline_view(vaga.get("status", "Interessado")),
                                 ]),
@@ -224,6 +243,7 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                         style={
                                             "color": COR_TEXTO, "marginBottom": "12px",
                                             "fontWeight": 600, "cursor": "pointer",
+                                            "fontSize": "1.1rem",
                                         },
                                     ),
                                     dbc.Collapse(
@@ -246,7 +266,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                     dbc.Col([
                         html.Div([
                             html.H5("Alterar Status", style={
-                                "color": COR_TEXTO, "marginBottom": "16px", "fontWeight": 600,
+                                "color": COR_TEXTO, "marginBottom": "16px",
+                                "fontWeight": 600, "fontSize": "1.1rem",
                             }),
                             dbc.Row([
                                 dbc.Col([
@@ -260,9 +281,10 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                         value=vaga.get("status", "Interessado"),
                                         placeholder="Selecione um status...",
                                         style={
-                                            "backgroundColor": COR_SUPERFICIE,
-                                            "border": f"1px solid {COR_BORDA}",
+                                            "backgroundColor": COR_ELEVADO,
+                                            "border": f"1px solid {COR_BORDA_CLARA}",
                                             "borderRadius": "8px",
+                                            "color": COR_TEXTO,
                                         },
                                     ),
                                 ], width=8),
@@ -273,13 +295,14 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                         className="btn",
                                         style={
                                             "backgroundColor": COR_PRIMARY,
-                                            "color": "#fff",
+                                            "color": COR_TEXTO,
                                             "border": "none",
                                             "borderRadius": "8px",
-                                            "padding": "10px 16px",
+                                            "padding": "12px 16px",
                                             "fontWeight": 600,
                                             "cursor": "pointer",
                                             "width": "100%",
+                                            "transition": "all 0.15s ease",
                                         },
                                     ),
                                 ], width=4),
@@ -288,7 +311,7 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                     ], width=12),
                 ]),
             ]),
-            html.Hr(style={"borderColor": COR_BORDA, "margin": "32px 0"}),
+            html.Hr(style={"borderColor": COR_BORDA_CLARA, "margin": "32px 0", "opacity": 0.5}),
             dbc.Row([
                 dbc.Col([
                     html.Button(
@@ -296,13 +319,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                         id={"type": "btn-editar-vaga", "index": vaga_id},
                         className="btn",
                         style={
+                            **_BOTAO_DARK,
                             "backgroundColor": COR_PRIMARY,
-                            "color": "#fff",
-                            "border": "none",
-                            "borderRadius": "8px",
-                            "padding": "12px 32px",
-                            "fontWeight": 600,
-                            "cursor": "pointer",
                             "marginRight": "12px",
                         },
                     ),
@@ -311,19 +329,14 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                         id={"type": "btn-excluir-vaga-detalhe", "index": vaga_id},
                         className="btn",
                         style={
-                            "backgroundColor": "#DC3545",
-                            "color": "#fff",
-                            "border": "none",
-                            "borderRadius": "8px",
-                            "padding": "12px 32px",
-                            "fontWeight": 600,
-                            "cursor": "pointer",
+                            **_BOTAO_DARK,
+                            "backgroundColor": COR_PERIGO,
                         },
                     ),
                 ], style={"display": "flex"}),
             ]),
             html.Div(id="edit-mode-placeholder", style={"marginTop": "32px"}),
-        ], style={"padding": "24px", "backgroundColor": COR_FUNDO}),
+        ], style={"padding": "0"}),
     ])
 
 
@@ -345,7 +358,7 @@ def editar_vaga(n_clicks_list, vaga_id):
     vaga = get_vaga(vaga_id)
     if not vaga:
         return new_clicks, html.Div([
-            html.P("Vaga não encontrada", style={"color": "#DC3545"}),
+            html.P("Vaga não encontrada", style={"color": COR_PERIGO}),
         ])
     
     return new_clicks, form_editar_vaga(vaga)

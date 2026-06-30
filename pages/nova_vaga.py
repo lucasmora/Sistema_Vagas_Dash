@@ -1,13 +1,14 @@
-import dash
+from datetime import datetime, date
 from dash import html, dcc, callback, Input, Output, State, callback_context, no_update
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 
-from models import criar_vaga, listar_portais, listar_tags, criar_tag
+from models import criar_vaga, listar_portais, listar_tags, criar_tag, get_portal
 from components.forms import form_nova_vaga, form_editar_vaga
+from services.infojobs_parser import parse_vaga_infojobs_dict
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA, COR_PRIMARY,
-    COR_FUNDO, CARD_STYLE, input_style,
+    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA, COR_PRIMARY,
+    CARD_STYLE, INPUT_STYLE,
 )
 
 
@@ -16,19 +17,144 @@ def layout() -> html.Div:
         html.H2("Nova Vaga", style={
             "color": COR_TEXTO, "fontWeight": 600, "marginBottom": "24px",
         }),
+        dcc.Store(id="autofill-source", data=None),
         dbc.Row([
             dbc.Col([
-                dbc.Card([
-                    dbc.CardBody([
-                        html.H5("Formulário de Vaga", style={
-                            "color": COR_TEXTO, "marginBottom": "20px", "fontWeight": 600,
-                        }),
-                        form_nova_vaga(),
-                    ]),
-                ], style={**CARD_STYLE}),
+                form_nova_vaga(),
             ], width=12),
         ]),
     ])
+
+
+@callback(
+    Output("modal-autofill-infojobs", "is_open", allow_duplicate=True),
+    Input("nova-vaga-portal", "value"),
+    prevent_initial_call=True,
+)
+def abrir_modal_autofill(portal_id):
+    """Abre modal se o portal selecionado for InfoJobs"""
+    if not portal_id or portal_id == "":
+        raise PreventUpdate
+    portal = get_portal(int(portal_id))
+    if portal and "infojobs" in portal.get("nome", "").lower():
+        return True
+    return False
+
+
+@callback(
+    Output("modal-autofill-infojobs", "is_open", allow_duplicate=True),
+    Input("btn-autofill-cancel", "n_clicks"),
+    prevent_initial_call=True,
+)
+def fechar_modal_autofill(n_clicks):
+    """Fecha modal sem preencher"""
+    if not n_clicks:
+        raise PreventUpdate
+    return False
+
+
+@callback(
+    Output("nova-vaga-nome", "value"),
+    Output("nova-vaga-empresa", "value"),
+    Output("nova-vaga-link", "value"),
+    Output("salario-valores", "children", allow_duplicate=True),
+    Output("nova-vaga-modalidade", "value"),
+    Output("nova-vaga-descricao", "value"),
+    Output("nova-vaga-notas", "value"),
+    Output("nova-vaga-data-encontrada", "date"),
+    Output("nova-vaga-data-publicacao", "date"),
+    Output("autofill-source", "data"),
+    Output("modal-autofill-infojobs", "is_open", allow_duplicate=True),
+    Output("autofill-infojobs-status", "children"),
+    Input("btn-autofill-fetch", "n_clicks"),
+    State("autofill-infojobs-id", "value"),
+    prevent_initial_call=True,
+)
+def buscar_e_preencher(n_clicks, vaga_id):
+    """Busca dados da vaga no InfoJobs e preenche o formulário"""
+    if not n_clicks:
+        raise PreventUpdate
+
+    vaga_id = (vaga_id or "").strip()
+    if not vaga_id:
+        return (no_update,) * 11 + (html.Span("⚠️ Digite o ID da vaga",
+                                                style={"color": "#FFC107"}),)
+
+    try:
+        dados = parse_vaga_infojobs_dict(vaga_id)
+    except Exception as e:
+        return (no_update,) * 11 + (html.Span(f"❌ Erro na requisição: {str(e)}",
+                                                style={"color": "#DC3545"}),)
+
+    if dados is None:
+        return (no_update,) * 11 + (html.Span("❌ Vaga não encontrada ou JSON-LD ausente",
+                                                style={"color": "#DC3545"}),)
+
+    # --- Salário: faixa, fixo ou nenhum ---
+    salario_valores = []
+    if dados.get("salario") and dados.get("salario_max"):
+        # Faixa salarial: dois inputs
+        salario_valores = [
+            html.Label("Salário Mínimo (R$)", style={
+                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                "marginBottom": "6px", "marginTop": "16px", "fontWeight": 500,
+            }),
+            dcc.Input(id="salario", type="number",
+                      placeholder="Ex: 2000", value=str(dados["salario"]),
+                      style={**INPUT_STYLE}, className="form-control"),
+            html.Label("Salário Máximo (R$)", style={
+                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                "marginBottom": "6px", "marginTop": "16px", "fontWeight": 500,
+            }),
+            dcc.Input(id="salario-max", type="number",
+                      placeholder="Ex: 20000", value=str(dados["salario_max"]),
+                      style={**INPUT_STYLE}, className="form-control"),
+        ]
+    elif dados.get("salario"):
+        # Salário fixo: um input
+        salario_valores = [
+            html.Label("Salário (R$)", style={
+                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
+                "marginBottom": "6px", "marginTop": "16px", "fontWeight": 500,
+            }),
+            dcc.Input(id="salario", type="number",
+                      placeholder="Ex: 12000", value=str(dados["salario"]),
+                      style={**INPUT_STYLE}, className="form-control"),
+        ]
+
+    # --- Modalidade (normalizar) ---
+    modalidade = dados.get("modalidade", "")
+    modalidade_map = {
+        "remoto": "Remoto", "presencial": "Presencial",
+        "hibrido": "Híbrido", "híbrido": "Híbrido",
+    }
+    modalidade = modalidade_map.get(modalidade.lower(), modalidade)
+
+    # --- Datas ---
+    hoje = date.today().isoformat()
+    data_publicacao = dados.get("data_publicacao", "")
+
+    # --- Store com dados extras para o salvar ---
+    fonte_data = {
+        "fonte_id": dados.get("fonte_id", ""),
+        "data_publicacao": data_publicacao,
+    }
+
+    return (
+        dados.get("nome", ""),          # nova-vaga-nome
+        dados.get("empresa", ""),       # nova-vaga-empresa
+        dados.get("link", ""),          # nova-vaga-link
+        salario_valores,                # salario-valores children
+        modalidade,                     # nova-vaga-modalidade
+        dados.get("descricao", ""),     # nova-vaga-descricao
+        dados.get("notas", ""),         # nova-vaga-notas
+        hoje,                           # nova-vaga-data-encontrada (HOJE)
+        data_publicacao,                # nova-vaga-data-publicacao
+        fonte_data,                     # autofill-source (store)
+        False,                          # modal is_open (fechar)
+        html.Span("✅ Vaga preenchida com sucesso!",
+                  style={"color": "#00BFA6", "fontWeight": 600}),
+    )
 
 
 @callback(
@@ -49,11 +175,13 @@ def layout() -> html.Div:
     State("nova-vaga-tags", "value"),
     State("nova-vaga-descricao", "value"),
     State("nova-vaga-notas", "value"),
+    State("nova-vaga-data-publicacao", "date"),
+    State("autofill-source", "data"),
     prevent_initial_call=True,
 )
 def salvar_vaga(n_clicks, nome, empresa, link, salario, salario_max, modalidade,
                portal, data_encontrada, data_envio, interesse, aderencia, tag_ids,
-               descricao, notas):
+               descricao, notas, data_publicacao, fonte_data):
     if not n_clicks:
         raise PreventUpdate
     
@@ -62,6 +190,12 @@ def salvar_vaga(n_clicks, nome, empresa, link, salario, salario_max, modalidade,
         return no_update, {"message": "Nome é obrigatório", "type": "warning"}
     
     tag_ids = tag_ids or []
+    fonte_id = ""
+    if fonte_data and isinstance(fonte_data, dict):
+        if not data_publicacao:
+            data_publicacao = fonte_data.get("data_publicacao", "")
+        fonte_id = fonte_data.get("fonte_id", "")
+    
     try:
         vaga_id = criar_vaga(
             nome=nome,
@@ -79,6 +213,8 @@ def salvar_vaga(n_clicks, nome, empresa, link, salario, salario_max, modalidade,
             data_envio=data_envio or "",
             notas=notas or "",
             tag_ids=[int(t) for t in tag_ids] if tag_ids else None,
+            data_publicacao=data_publicacao or "",
+            fonte_id=fonte_id,
         )
         return f"/vagas/{vaga_id}", {"message": "Vaga criada com sucesso!", "type": "success"}
     except Exception as e:

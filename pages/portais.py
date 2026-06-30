@@ -6,8 +6,8 @@ from dash.exceptions import PreventUpdate
 from models import listar_portais, get_portal, criar_portal, atualizar_portal, excluir_portal
 from components.forms import form_portal
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA, COR_PRIMARY,
-    COR_SUPERFICIE, CARD_STYLE,
+    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
+    COR_BORDA_CLARA, COR_PRIMARY, COR_PERIGO, CARD_STYLE,
 )
 
 
@@ -19,18 +19,18 @@ def _portal_card(portal: dict) -> html.Div:
                     "color": COR_TEXTO, "margin": 0, "fontWeight": 600,
                 }),
                 html.P(portal.get("url_base") or "", style={
-                    "color": COR_TEXTO_SEC, "margin": "2px 0", "fontSize": "0.85rem",
+                    "color": COR_TEXTO_SEC, "margin": "4px 0", "fontSize": "0.85rem",
                 }),
                 html.P(f"Login: {portal.get('tipo_login') or '—'}", style={
-                    "color": COR_TEXTO_SEC, "margin": "2px 0", "fontSize": "0.85rem",
+                    "color": COR_TEXTO_MUTED, "margin": "4px 0", "fontSize": "0.8125rem",
                 }),
                 html.P(f"Última atualização: {portal.get('ultima_atualizacao') or '—'}",
                         style={
-                            "color": COR_TEXTO_SEC, "margin": "2px 0",
-                            "fontSize": "0.85rem",
+                            "color": COR_TEXTO_MUTED, "margin": "4px 0",
+                            "fontSize": "0.8125rem",
                         }),
                 html.P(portal.get("notas") or "", style={
-                    "color": COR_TEXTO_SEC, "margin": "4px 0", "fontSize": "0.8rem",
+                    "color": COR_TEXTO_SEC, "margin": "8px 0 0 0", "fontSize": "0.8125rem",
                 }),
             ]),
             html.Div([
@@ -43,10 +43,12 @@ def _portal_card(portal: dict) -> html.Div:
                         "color": COR_PRIMARY,
                         "border": f"1px solid {COR_PRIMARY}",
                         "borderRadius": "6px",
-                        "padding": "4px 14px",
+                        "padding": "6px 16px",
                         "cursor": "pointer",
                         "marginRight": "8px",
                         "fontSize": "0.85rem",
+                        "fontWeight": 500,
+                        "transition": "all 0.15s ease",
                     },
                 ),
                 html.Button(
@@ -55,15 +57,17 @@ def _portal_card(portal: dict) -> html.Div:
                     className="btn btn-sm",
                     style={
                         "backgroundColor": "transparent",
-                        "color": "#DC3545",
-                        "border": "1px solid #DC3545",
+                        "color": COR_PERIGO,
+                        "border": f"1px solid {COR_PERIGO}",
                         "borderRadius": "6px",
-                        "padding": "4px 14px",
+                        "padding": "6px 16px",
                         "cursor": "pointer",
                         "fontSize": "0.85rem",
+                        "fontWeight": 500,
+                        "transition": "all 0.15s ease",
                     },
                 ),
-            ], style={"display": "flex", "marginTop": "12px"}),
+            ], style={"display": "flex", "marginTop": "16px"}),
         ],
         style={**CARD_STYLE, "marginBottom": "12px"},
     )
@@ -117,6 +121,17 @@ def editar_portal(n_clicks_list):
     if not ctx.triggered:
         raise PreventUpdate
     return ctx.triggered_id["index"]
+
+
+@callback(
+    Output("editing_portal_id", "data", allow_duplicate=True),
+    Input("btn-cancelar-edicao-portal", "n_clicks"),
+    prevent_initial_call=True,
+)
+def cancelar_edicao_portal(n_clicks):
+    if not n_clicks:
+        raise PreventUpdate
+    return None
 
 
 @callback(

@@ -1,8 +1,9 @@
 from dash import html, dcc
 from styles import (
-    COR_SUPERFICIE, COR_BORDA, COR_TEXTO, COR_TEXTO_SEC,
-    CARD_STYLE, badge_style, tag_style,
+    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
+    COR_PRIMARY, CARD_STYLE, badge_style, tag_style,
 )
+
 
 def _formatar_salario(vaga: dict) -> str:
     s = vaga.get("salario")
@@ -13,8 +14,10 @@ def _formatar_salario(vaga: dict) -> str:
         return f"R$ {s:,.0f}".replace(",", ".")
     return f"R$ {s:,.0f} - R$ {sm:,.0f}".replace(",", ".")
 
+
 def _estrelas(valor: int) -> str:
-    return "⭐" * valor + "☆" * (5 - valor)
+    return "★" * valor + "☆" * (5 - valor)
+
 
 def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
     nome = vaga.get("nome", "Sem nome")
@@ -53,11 +56,11 @@ def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
                         children=[
                             html.H4(nome, style={
                                 "color": COR_TEXTO, "margin": 0,
-                                "fontSize": "1.1rem", "fontWeight": 600,
+                                "fontSize": "1.125rem", "fontWeight": 600,
                             }),
                             html.P(empresa, style={
-                                "color": COR_TEXTO_SEC, "margin": "2px 0 0 0",
-                                "fontSize": "0.9rem",
+                                "color": COR_TEXTO_SEC, "margin": "4px 0 0 0",
+                                "fontSize": "0.875rem",
                             }),
                         ],
                         style={"flex": 1},
@@ -65,23 +68,23 @@ def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
                     html.Span(status, style=badge_style(status)),
                 ],
                 style={"display": "flex",
-                        "justifyContent": "space-between", "marginBottom": "12px"},
+                        "justifyContent": "space-between", "marginBottom": "16px"},
             ),
             html.Div(
                 children=[
                     html.Span(info_linha, style={
-                        "color": COR_TEXTO_SEC, "fontSize": "0.85rem",
+                        "color": COR_TEXTO_MUTED, "fontSize": "0.8125rem",
                     }),
                 ],
-                style={"marginBottom": "6px"},
+                style={"marginBottom": "8px"},
             ),
             html.Div(
                 children=[
                     html.Span(portal_nome or "Sem portal", style={
-                        "color": COR_TEXTO_SEC, "fontSize": "0.85rem",
+                        "color": COR_TEXTO_MUTED, "fontSize": "0.8125rem",
                     }),
                 ],
-                style={"marginBottom": "6px"},
+                style={"marginBottom": "8px"},
             ) if portal_nome else None,
             html.Div(
                 children=[
@@ -95,16 +98,16 @@ def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
                         style={"color": COR_TEXTO_SEC, "fontSize": "0.8rem"},
                     ),
                 ],
-                style={"marginBottom": "8px"},
+                style={"marginBottom": "12px"},
             ),
             html.Div(
                 children=tag_pills,
-                style={"marginBottom": "8px"},
+                style={"marginBottom": "12px"},
             ) if tag_pills else None,
             html.Div(
                 children=[
                     html.Span(data_envio_texto, style={
-                        "color": COR_TEXTO_SEC, "fontSize": "0.8rem",
+                        "color": COR_TEXTO_MUTED, "fontSize": "0.8125rem",
                     }),
                 ],
                 style={"marginBottom": "16px"},
@@ -115,8 +118,8 @@ def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
                         html.Span(
                             "Detalhes →",
                             style={
-                                "color": COR_TEXTO, "fontSize": "0.9rem",
-                                "cursor": "pointer",
+                                "color": COR_PRIMARY, "fontSize": "0.875rem",
+                                "cursor": "pointer", "fontWeight": 500,
                             },
                         ),
                         href=f"/vagas/{vaga_id}",

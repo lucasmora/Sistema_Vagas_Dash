@@ -1,7 +1,8 @@
 from dash import html, dcc
 from styles import (
-    COR_FUNDO, COR_SUPERFICIE, COR_BORDA, COR_TEXTO,
-    COR_TEXTO_SEC, COR_PRIMARY, SIDEBAR_WIDTH,
+    COR_SUPERFICIE, COR_BORDA_CLARA, COR_TEXTO,
+    COR_TEXTO_MUTED, COR_PRIMARY, SIDEBAR_WIDTH,
+    RAIO_BORDA,
 )
 
 NAV_ITENS = [
@@ -27,11 +28,13 @@ def sidebar() -> html.Div:
                         "display": "flex",
                         "alignItems": "center",
                         "padding": "12px 24px",
-                        "borderRadius": "8px",
+                        "borderRadius": RAIO_BORDA,
                         "color": COR_TEXTO,
                         "fontSize": "0.95rem",
-                        "transition": "background 0.15s",
+                        "fontWeight": 500,
+                        "transition": "all 0.15s ease",
                         "margin": "2px 12px",
+                        "borderLeft": "3px solid transparent",
                     },
                 ),
                 href=href,
@@ -53,7 +56,7 @@ def sidebar() -> html.Div:
                         },
                     ),
                     html.Hr(style={
-                        "borderColor": COR_BORDA,
+                        "borderColor": COR_BORDA_CLARA,
                         "margin": "16px 0",
                     }),
                 ],
@@ -65,11 +68,11 @@ def sidebar() -> html.Div:
             ),
             html.Div(
                 children=[
-                    html.Hr(style={"borderColor": COR_BORDA, "margin": 0}),
+                    html.Hr(style={"borderColor": COR_BORDA_CLARA, "margin": 0}),
                     html.P(
                         "v1.0.0",
                         style={
-                            "color": COR_TEXTO_SEC,
+                            "color": COR_TEXTO_MUTED,
                             "fontSize": "0.75rem",
                             "textAlign": "center",
                             "padding": "12px",
@@ -81,11 +84,12 @@ def sidebar() -> html.Div:
         ],
         style={
             "backgroundColor": COR_SUPERFICIE,
-            "borderRight": f"1px solid {COR_BORDA}",
+            "borderRight": f"1px solid {COR_BORDA_CLARA}",
             "height": "100vh",
             "display": "flex",
             "flexDirection": "column",
             "position": "fixed",
             "width": f"{100 * SIDEBAR_WIDTH / 12}%",
+            "boxShadow": "2px 0 8px rgba(0,0,0,0.4)",
         },
     )

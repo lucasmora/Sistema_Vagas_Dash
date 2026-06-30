@@ -6,8 +6,8 @@ from dash.exceptions import PreventUpdate
 from models import listar_tags, criar_tag, excluir_tag
 from components.forms import form_tag
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA, COR_PRIMARY,
-    CARD_STYLE, tag_style,
+    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA, COR_PRIMARY,
+    COR_PERIGO, CARD_STYLE, tag_style,
 )
 
 
@@ -15,7 +15,7 @@ def _tag_item(tag: dict) -> html.Div:
     return html.Div(
         children=[
             html.Span(f"🏷️ {tag['nome']}", style={
-                "color": COR_TEXTO, "fontSize": "0.95rem",
+                "color": COR_TEXTO, "fontSize": "0.95rem", "fontWeight": 500,
             }),
             html.Button(
                 "Excluir",
@@ -23,12 +23,14 @@ def _tag_item(tag: dict) -> html.Div:
                 className="btn btn-sm",
                 style={
                     "backgroundColor": "transparent",
-                    "color": "#DC3545",
-                    "border": "1px solid #DC3545",
+                    "color": COR_PERIGO,
+                    "border": f"1px solid {COR_PERIGO}",
                     "borderRadius": "6px",
-                    "padding": "4px 14px",
+                    "padding": "6px 16px",
                     "cursor": "pointer",
                     "fontSize": "0.85rem",
+                    "fontWeight": 500,
+                    "transition": "all 0.15s ease",
                 },
             ),
         ],
@@ -38,7 +40,7 @@ def _tag_item(tag: dict) -> html.Div:
             "justifyContent": "space-between",
             "alignItems": "center",
             "marginBottom": "8px",
-            "padding": "12px 20px",
+            "padding": "16px 20px",
         },
     )
 
@@ -101,12 +103,13 @@ def excluir_tag_callback(n_clicks_list, trigger):
     Output("tags-trigger", "data", allow_duplicate=True),
     Output("notification", "data", allow_duplicate=True),
     Input("btn-add-tag", "n_clicks"),
+    Input("form-tag-nome", "n_submit"),
     State("form-tag-nome", "value"),
     State("tags-trigger", "data"),
     prevent_initial_call=True,
 )
-def adicionar_tag(n_clicks, nome, trigger):
-    if not n_clicks:
+def adicionar_tag(n_clicks, n_submit, nome, trigger):
+    if not n_clicks and not n_submit:
         raise PreventUpdate
     nome = (nome or "").strip()
     if not nome:

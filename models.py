@@ -64,17 +64,19 @@ def criar_vaga(
     data_envio: str = "",
     notas: str = "",
     tag_ids: Optional[list[int]] = None,
+    data_publicacao: str = "",
+    fonte_id: str = "",
 ) -> int | None:
     with get_db() as conn:
         cur = conn.execute(
             """INSERT INTO vagas
                (nome, empresa, link, salario, salario_max, modalidade,
                 descricao, interesse, aderencia, status, portal_id,
-                data_encontrada, data_envio, notas)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                data_encontrada, data_envio, notas, data_publicacao, fonte_id)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (nome, empresa, link, salario, salario_max, modalidade,
              descricao, interesse, aderencia, status, portal_id,
-             data_encontrada, data_envio, notas),
+             data_encontrada, data_envio, notas, data_publicacao, fonte_id),
         )
         vaga_id = cur.lastrowid
         if tag_ids:
@@ -111,6 +113,8 @@ def atualizar_vaga(
     data_envio: str = "",
     notas: str = "",
     tag_ids: Optional[list[int]] = None,
+    data_publicacao: str = "",
+    fonte_id: str = "",
 ) -> None:
     with get_db() as conn:
         conn.execute(
@@ -118,11 +122,11 @@ def atualizar_vaga(
                nome=?, empresa=?, link=?, salario=?, salario_max=?,
                modalidade=?, descricao=?, interesse=?, aderencia=?,
                status=?, portal_id=?, data_encontrada=?, data_envio=?,
-               notas=?
+               notas=?, data_publicacao=?, fonte_id=?
                WHERE id=?""",
             (nome, empresa, link, salario, salario_max, modalidade,
              descricao, interesse, aderencia, status, portal_id,
-             data_encontrada, data_envio, notas, vaga_id),
+             data_encontrada, data_envio, notas, data_publicacao, fonte_id, vaga_id),
         )
         if tag_ids is not None:
             conn.execute(

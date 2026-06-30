@@ -4,7 +4,7 @@ import dash_bootstrap_components as dbc
 from components.layout import metric_card
 from components.charts import fig_pizza_status, fig_barras_curriculos, fig_barras_portais
 from models import obter_metricas
-from styles import COR_TEXTO, COR_TEXTO_SEC
+from styles import COR_TEXTO, COR_TEXTO_SEC, COR_PRIMARY, COR_DESTAQUE, COR_ALERTA
 
 
 def layout() -> html.Div:
@@ -24,14 +24,14 @@ def layout() -> html.Div:
             ),
             dbc.Row(
                 children=[
-                    dbc.Col(metric_card("Total", m["total"], "#00BFA6"),
+                    dbc.Col(metric_card("Total", m["total"], COR_PRIMARY),
                             width=3),
-                    dbc.Col(metric_card("Ativas", m["ativas"], "#6C63FF"),
+                    dbc.Col(metric_card("Ativas", m["ativas"], COR_DESTAQUE),
                             width=3),
                     dbc.Col(metric_card("Em Entrevista", m["entrevista"],
-                                        "#FFC107"), width=3),
+                                        COR_ALERTA), width=3),
                     dbc.Col(metric_card("Currículos", m["curriculos"],
-                                        "#0DCAF0"), width=3),
+                                        COR_PRIMARY), width=3),
                 ],
                 className="g-3",
                 style={"marginBottom": "24px"},
@@ -46,7 +46,7 @@ def layout() -> html.Div:
                                 config={"displayModeBar": False},
                             ),
                             type="circle",
-                            color="#00BFA6",
+                            color=COR_PRIMARY,
                         ),
                         width=6,
                     ),
@@ -58,7 +58,7 @@ def layout() -> html.Div:
                                 config={"displayModeBar": False},
                             ),
                             type="circle",
-                            color="#6C63FF",
+                            color=COR_DESTAQUE,
                         ),
                         width=6,
                     ),
@@ -76,7 +76,7 @@ def layout() -> html.Div:
                                 config={"displayModeBar": False},
                             ),
                             type="circle",
-                            color="#00BFA6",
+                            color=COR_PRIMARY,
                         ),
                         width=12,
                     ),
