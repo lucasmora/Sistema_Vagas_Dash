@@ -1,4 +1,4 @@
-from dash import html, dcc, callback, Input, Output
+from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
 from styles import (
     COR_SUPERFICIE, COR_BORDA, COR_TEXTO, COR_TEXTO_SEC,
@@ -191,10 +191,10 @@ def salario_inputs() -> html.Div:
                 inputStyle={"marginRight": "6px", "accentColor": COR_PRIMARY},
             ),
             html.Div(id="salario-valores", children=[
-                _label("Salário (R$)"),
-                _input_simples("salario", "Ex: 12000", "number"),
-                _label("Salário Máximo (R$)"),
-                _input_simples("salario-max", "Ex: 15000", "number"),
+                html.Div(_label("Salário (R$)"), style={"display": "none"}),
+                dcc.Input(id="salario", type="number", style={"display": "none"}),
+                html.Div(_label("Salário Máximo (R$)"), style={"display": "none"}),
+                dcc.Input(id="salario-max", type="number", style={"display": "none"}),
             ]),
         ],
         style={"marginBottom": "8px"},
@@ -202,22 +202,44 @@ def salario_inputs() -> html.Div:
 
 
 @callback(
-    Output("salario-valores", "children"),
+    Output("salario-valores", "children", allow_duplicate=True),
     Input("salario-tipo", "value"),
+    State("autofill-salary", "data"),
+    prevent_initial_call=True,
 )
-def _condicional_salario(tipo: str):
+def _condicional_salario(tipo: str, autofill_data):
+    """Atualiza visibilidade e valores dos inputs de salário"""
+    # Obter valores (autofill tem prioridade)
+    val = None
+    val_max = None
+    if autofill_data and isinstance(autofill_data, dict):
+        val = autofill_data.get("salario")
+        val_max = autofill_data.get("salario_max")
+    
+    # Montar inputs conforme o tipo
     if tipo == "nai":
-        return []
+        return [
+            html.Div(_label("Salário (R$)"), style={"display": "none"}),
+            dcc.Input(id="salario", type="number", style={"display": "none"}),
+            html.Div(_label("Salário Máximo (R$)"), style={"display": "none"}),
+            dcc.Input(id="salario-max", type="number", style={"display": "none"}),
+        ]
     if tipo == "fixo":
         return [
             _label("Salário (R$)"),
-            _input_simples("salario", "Ex: 12000", "number"),
+            _input_simples("salario", "Ex: 12000", "number",
+                           value=str(val) if val is not None else ""),
+            html.Div(_label("Salário Máximo (R$)"), style={"display": "none"}),
+            dcc.Input(id="salario-max", type="number", style={"display": "none"}),
         ]
+    # tipo == "faixa"
     return [
         _label("Salário Mínimo (R$)"),
-        _input_simples("salario", "Ex: 12000", "number"),
+        _input_simples("salario", "Ex: 2000", "number",
+                       value=str(val) if val is not None else ""),
         _label("Salário Máximo (R$)"),
-        _input_simples("salario-max", "Ex: 15000", "number"),
+        _input_simples("salario-max", "Ex: 20000", "number",
+                       value=str(val_max) if val_max is not None else ""),
     ]
 
 
@@ -236,6 +258,7 @@ def form_nova_vaga() -> html.Div:
                 "color": COR_TEXTO, "marginBottom": "24px", "fontWeight": 600,
                 "fontSize": "1.5rem",
             }),
+            dcc.Store(id="autofill-salary", data=None),
             html.Div(
                 children=[
                     html.Div([

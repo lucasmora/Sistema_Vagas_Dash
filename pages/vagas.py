@@ -69,16 +69,10 @@ def layout() -> html.Div:
                             "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
                             "marginBottom": "6px", "fontWeight": 500,
                         }),
-                        dcc.Dropdown(
+                        dbc.Select(
                             id="filtro-portal",
                             options=[{"label": "Todos", "value": ""}],
                             value="",
-                            style={
-                                "backgroundColor": COR_SUPERFICIE,
-                                "border": f"1px solid {COR_BORDA}",
-                                "borderRadius": "8px",
-                                "color": COR_TEXTO,
-                            },
                         ),
                         html.Hr(style={
                             "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
@@ -88,16 +82,10 @@ def layout() -> html.Div:
                             "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
                             "marginBottom": "6px", "fontWeight": 500,
                         }),
-                        dcc.Dropdown(
+                        dbc.Select(
                             id="filtro-tag",
                             options=[{"label": "Todas", "value": ""}],
                             value="",
-                            style={
-                                "backgroundColor": COR_SUPERFICIE,
-                                "border": f"1px solid {COR_BORDA}",
-                                "borderRadius": "8px",
-                                "color": COR_TEXTO,
-                            },
                         ),
                         html.Hr(style={
                             "borderColor": COR_BORDA_CLARA, "margin": "20px 0",

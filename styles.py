@@ -1,27 +1,27 @@
-# Paleta Dark Mode
+# Paleta Dark Mode (WCAG AA-friendly)
 
-COR_FUNDO = "#0F0F23"        # Background principal (deep navy)
-COR_SUPERFICIE = "#1A1A34"   # Superfícies (cards, sidebar)
-COR_ELEVADO = "#24244A"      # Elevado (hover, pipeline bg, dropdowns)
-COR_BORDA_CLARA = "#2E2E54"  # Bordas sutis
-COR_BORDA = "#40406A"        # Bordas fortes (inputs)
-COR_TEXTO = "#EAEAFA"        # Texto primário (alto contraste ~14:1)
-COR_TEXTO_SEC = "#A8A8C8"    # Texto secundário
-COR_TEXTO_MUTED = "#7A7A9A"  # Texto muted (contraste ≥4.5:1)
-COR_PRIMARY = "#00ADB5"      # Teal (mais claro para contraste em dark)
-COR_DESTAQUE = "#7C6FFF"     # Roxo destaque
-COR_SUCESSO = "#1DB954"      # Verde
-COR_ALERTA = "#E89600"       # Âmbar
-COR_PERIGO = "#E54545"       # Vermelho
+COR_FUNDO = "#060B17"        # Background principal (navy profundo)
+COR_SUPERFICIE = "#101728"   # Superfícies (cards, sidebar)
+COR_ELEVADO = "#17233C"      # Elevado (hover, pipeline bg, dropdowns)
+COR_BORDA_CLARA = "#22324D"  # Bordas sutis
+COR_BORDA = "#2D4470"        # Bordas fortes (inputs)
+COR_TEXTO = "#F5F7FF"        # Texto primário (alto contraste)
+COR_TEXTO_SEC = "#D6E0F2"    # Texto secundário
+COR_TEXTO_MUTED = "#99A8C2"  # Texto muted (contraste adequado)
+COR_PRIMARY = "#2ED3C8"      # Teal mais vivo para contraste em dark
+COR_DESTAQUE = "#8B7CFF"     # Roxo destaque
+COR_SUCESSO = "#2FCB70"      # Verde
+COR_ALERTA = "#F5A524"       # Âmbar
+COR_PERIGO = "#FF5F6D"       # Vermelho
 
 STATUS_CORES = {
-    "Interessado": "#8A8AAC",
-    "Currículo Enviado": "#00ADB5",
-    "Entrevista Agendada": "#E89600",
-    "Em Processo": "#7C6FFF",
-    "Oferta": "#1DB954",
-    "Aceito": "#00ADB5",
-    "Rejeitado": "#E54545",
+    "Interessado": "#A7A9CD",
+    "Currículo Enviado": "#2ED3C8",
+    "Entrevista Agendada": "#F5A524",
+    "Em Processo": "#8B7CFF",
+    "Oferta": "#2FCB70",
+    "Aceito": "#2ED3C8",
+    "Rejeitado": "#FF5F6D",
 }
 
 PIPELINE_ORDEM = [
@@ -36,8 +36,8 @@ PIPELINE_ORDEM = [
 STATUS_TERMINAL = "Rejeitado"
 
 # Sombras escuras (mais intensas em dark mode)
-SOMBRA_NIVEL_1 = "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.3)"
-SOMBRA_NIVEL_2 = "0 4px 6px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.35)"
+SOMBRA_NIVEL_1 = "0 1px 3px rgba(2,8,23,0.45), 0 1px 2px rgba(2,8,23,0.3)"
+SOMBRA_NIVEL_2 = "0 6px 12px rgba(2,8,23,0.55), 0 3px 6px rgba(2,8,23,0.4)"
 
 # Espaçamento Airy
 ESP_XS = "4px"
@@ -83,7 +83,7 @@ INPUT_STYLE = {
 
 INPUT_FOCUS_STYLE = {
     "borderColor": COR_PRIMARY,
-    "boxShadow": f"0 0 0 3px rgba(0, 173, 181, 0.25)",
+    "boxShadow": f"0 0 0 3px rgba(46, 211, 200, 0.28)",
 }
 
 SELECT_STYLE = {

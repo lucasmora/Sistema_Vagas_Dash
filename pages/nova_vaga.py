@@ -8,7 +8,7 @@ from components.forms import form_nova_vaga, form_editar_vaga
 from services.infojobs_parser import parse_vaga_infojobs_dict
 from styles import (
     COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA, COR_PRIMARY,
-    CARD_STYLE, INPUT_STYLE,
+    COR_ALERTA, COR_PERIGO, COR_SUCESSO, CARD_STYLE, INPUT_STYLE,
 )
 
 
@@ -57,7 +57,8 @@ def fechar_modal_autofill(n_clicks):
     Output("nova-vaga-nome", "value"),
     Output("nova-vaga-empresa", "value"),
     Output("nova-vaga-link", "value"),
-    Output("salario-valores", "children", allow_duplicate=True),
+    Output("salario-tipo", "value", allow_duplicate=True),
+    Output("autofill-salary", "data"),
     Output("nova-vaga-modalidade", "value"),
     Output("nova-vaga-descricao", "value"),
     Output("nova-vaga-notas", "value"),
@@ -78,49 +79,27 @@ def buscar_e_preencher(n_clicks, vaga_id):
     vaga_id = (vaga_id or "").strip()
     if not vaga_id:
         return (no_update,) * 11 + (html.Span("⚠️ Digite o ID da vaga",
-                                                style={"color": "#FFC107"}),)
+                                                style={"color": COR_ALERTA}),)
 
     try:
         dados = parse_vaga_infojobs_dict(vaga_id)
     except Exception as e:
         return (no_update,) * 11 + (html.Span(f"❌ Erro na requisição: {str(e)}",
-                                                style={"color": "#DC3545"}),)
+                                                style={"color": COR_PERIGO}),)
 
     if dados is None:
         return (no_update,) * 11 + (html.Span("❌ Vaga não encontrada ou JSON-LD ausente",
-                                                style={"color": "#DC3545"}),)
+                                                style={"color": COR_PERIGO}),)
 
-    # --- Salário: faixa, fixo ou nenhum ---
-    salario_valores = []
+    # --- Salário: definir tipo e dados para o _condicional_salario ---
+    salario_tipo = "nai"
+    salario_store = None
     if dados.get("salario") and dados.get("salario_max"):
-        # Faixa salarial: dois inputs
-        salario_valores = [
-            html.Label("Salário Mínimo (R$)", style={
-                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                "marginBottom": "6px", "marginTop": "16px", "fontWeight": 500,
-            }),
-            dcc.Input(id="salario", type="number",
-                      placeholder="Ex: 2000", value=str(dados["salario"]),
-                      style={**INPUT_STYLE}, className="form-control"),
-            html.Label("Salário Máximo (R$)", style={
-                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                "marginBottom": "6px", "marginTop": "16px", "fontWeight": 500,
-            }),
-            dcc.Input(id="salario-max", type="number",
-                      placeholder="Ex: 20000", value=str(dados["salario_max"]),
-                      style={**INPUT_STYLE}, className="form-control"),
-        ]
+        salario_tipo = "faixa"
+        salario_store = {"salario": float(dados["salario"]), "salario_max": float(dados["salario_max"])}
     elif dados.get("salario"):
-        # Salário fixo: um input
-        salario_valores = [
-            html.Label("Salário (R$)", style={
-                "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                "marginBottom": "6px", "marginTop": "16px", "fontWeight": 500,
-            }),
-            dcc.Input(id="salario", type="number",
-                      placeholder="Ex: 12000", value=str(dados["salario"]),
-                      style={**INPUT_STYLE}, className="form-control"),
-        ]
+        salario_tipo = "fixo"
+        salario_store = {"salario": float(dados["salario"]), "salario_max": None}
 
     # --- Modalidade (normalizar) ---
     modalidade = dados.get("modalidade", "")
@@ -144,7 +123,8 @@ def buscar_e_preencher(n_clicks, vaga_id):
         dados.get("nome", ""),          # nova-vaga-nome
         dados.get("empresa", ""),       # nova-vaga-empresa
         dados.get("link", ""),          # nova-vaga-link
-        salario_valores,                # salario-valores children
+        salario_tipo,                   # salario-tipo (radio)
+        salario_store,                  # autofill-salary (store)
         modalidade,                     # nova-vaga-modalidade
         dados.get("descricao", ""),     # nova-vaga-descricao
         dados.get("notas", ""),         # nova-vaga-notas
@@ -153,7 +133,7 @@ def buscar_e_preencher(n_clicks, vaga_id):
         fonte_data,                     # autofill-source (store)
         False,                          # modal is_open (fechar)
         html.Span("✅ Vaga preenchida com sucesso!",
-                  style={"color": "#00BFA6", "fontWeight": 600}),
+                  style={"color": COR_SUCESSO, "fontWeight": 600}),
     )
 
 

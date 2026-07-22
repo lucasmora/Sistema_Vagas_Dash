@@ -33,151 +33,174 @@ app = dash.Dash(
             :root {
                 --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
                 --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+                --bg: #060B17;
+                --surface: #101728;
+                --surface-raised: #17233C;
+                --border: #2D4470;
+                --text: #F5F7FF;
+                --text-secondary: #D6E0F2;
+                --text-muted: #99A8C2;
+                --primary: #2ED3C8;
+                --accent: #8B7CFF;
+                --success: #2FCB70;
+                --warning: #F5A524;
+                --danger: #FF5F6D;
+                --Dash-Text-Strong: var(--text);
+                --Dash-Text-Medium: var(--text-secondary);
+                --Dash-Text-Weak: var(--text-muted);
             }
             body {
                 font-family: var(--font-sans);
-                background-color: #0F0F23 !important;
-                color: #EAEAFA;
+                background-color: var(--bg) !important;
+                color: var(--text);
             }
             .form-control {
                 font-family: var(--font-sans);
-                background-color: #24244A !important;
-                border-color: #40406A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface-raised) !important;
+                border-color: var(--border) !important;
+                color: var(--text) !important;
             }
             .form-control:focus {
-                border-color: #00ADB5 !important;
-                box-shadow: 0 0 0 3px rgba(0, 173, 181, 0.25) !important;
+                border-color: var(--primary) !important;
+                box-shadow: 0 0 0 3px rgba(46, 211, 200, 0.28) !important;
             }
             .form-control::placeholder {
-                color: #7A7A9A !important;
+                color: var(--text-muted) !important;
             }
             code, pre, kbd, samp { font-family: var(--font-mono); }
             /* Select / Dropdown dark overrides */
             .Select-control {
-                background-color: #24244A !important;
-                border-color: #40406A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface-raised) !important;
+                border-color: var(--border) !important;
+                color: var(--text) !important;
             }
             .Select-menu-outer {
-                background-color: #1A1A34 !important;
-                border-color: #40406A !important;
+                background-color: var(--surface) !important;
+                border-color: var(--border) !important;
             }
             .Select-option {
-                background-color: #1A1A34 !important;
-                color: #A8A8C8 !important;
+                background-color: var(--surface) !important;
+                color: var(--text-secondary) !important;
             }
             .Select-option.is-focused {
-                background-color: #24244A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface-raised) !important;
+                color: var(--text) !important;
             }
             .Select-option.is-selected {
-                background-color: #00ADB5 !important;
+                background-color: var(--primary) !important;
                 color: #FFF !important;
             }
             .Select-value-label {
-                color: #EAEAFA !important;
+                color: var(--text) !important;
             }
             .Select-placeholder {
-                color: #7A7A9A !important;
+                color: var(--text-muted) !important;
             }
             .Select--multi .Select-value {
-                background-color: #7C6FFF28 !important;
-                border-color: #7C6FFF50 !important;
-                color: #7C6FFF !important;
+                background-color: #8B7CFF28 !important;
+                border-color: #8B7CFF50 !important;
+                color: var(--accent) !important;
             }
             .Select--multi .Select-value-icon {
-                border-color: #7C6FFF50 !important;
-                color: #7C6FFF !important;
+                border-color: #8B7CFF50 !important;
+                color: var(--accent) !important;
             }
             .Select--multi .Select-value-label {
-                color: #7C6FFF !important;
+                color: var(--accent) !important;
             }
             /* DatePickerSingle dark overrides */
             .DateInput, .DateInput_input {
-                background-color: #24244A !important;
-                border-color: #40406A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface-raised) !important;
+                border-color: var(--border) !important;
+                color: var(--text) !important;
                 font-family: var(--font-sans) !important;
             }
             .DateInput_input__focused {
-                border-color: #00ADB5 !important;
+                border-color: var(--primary) !important;
             }
             .CalendarMonth, .CalendarMonthGrid {
-                background-color: #1A1A34 !important;
+                background-color: var(--surface) !important;
             }
             .DayPicker {
-                background-color: #1A1A34 !important;
+                background-color: var(--surface) !important;
             }
             .CalendarMonth_caption {
-                color: #EAEAFA !important;
+                color: var(--text) !important;
             }
             .DayPicker_weekHeader {
-                color: #A8A8C8 !important;
+                color: var(--text-secondary) !important;
             }
             .DayPickerNavigation_button {
-                background-color: #24244A !important;
-                border-color: #40406A !important;
+                background-color: var(--surface-raised) !important;
+                border-color: var(--border) !important;
             }
             .CalendarDay__default {
-                background-color: #24244A !important;
-                border-color: #40406A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface-raised) !important;
+                border-color: var(--border) !important;
+                color: var(--text) !important;
             }
             .CalendarDay__default:hover {
-                background-color: #00ADB5 !important;
+                background-color: var(--primary) !important;
                 color: #FFF !important;
             }
             .CalendarDay__selected {
-                background-color: #00ADB5 !important;
-                border-color: #00ADB5 !important;
+                background-color: var(--primary) !important;
+                border-color: var(--primary) !important;
                 color: #FFF !important;
             }
             .CalendarDay__selected:hover {
-                background-color: #00ADB5 !important;
+                background-color: var(--primary) !important;
                 color: #FFF !important;
             }
             .CalendarDay__outside {
                 background-color: transparent !important;
             }
             .SingleDatePickerInput__withBorder {
-                border-color: #40406A !important;
+                border-color: var(--border) !important;
             }
             /* rc-slider (Slider component) dark */
             .rc-slider-track {
-                background-color: #00ADB5 !important;
+                background-color: var(--primary) !important;
             }
             .rc-slider-handle {
-                border-color: #00ADB5 !important;
-                background-color: #EAEAFA !important;
+                border-color: var(--primary) !important;
+                background-color: var(--text) !important;
             }
             .rc-slider-rail {
-                background-color: #40406A !important;
+                background-color: var(--border) !important;
             }
             .rc-slider-mark-text {
-                color: #7A7A9A !important;
+                color: var(--text-muted) !important;
             }
             .rc-slider-dot {
-                border-color: #40406A !important;
-                background-color: #24244A !important;
+                border-color: var(--border) !important;
+                background-color: var(--surface-raised) !important;
             }
             .rc-slider-dot-active {
-                border-color: #00ADB5 !important;
+                border-color: var(--primary) !important;
             }
             /* Toast overrides */
             .toast {
-                background-color: #1A1A34 !important;
-                border-color: #40406A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface) !important;
+                border-color: var(--border) !important;
+                color: var(--text) !important;
             }
             .toast-header {
-                background-color: #24244A !important;
-                border-color: #40406A !important;
-                color: #EAEAFA !important;
+                background-color: var(--surface-raised) !important;
+                border-color: var(--border) !important;
+                color: var(--text) !important;
             }
             /* Links inside text */
-            a { color: #00ADB5 !important; }
-            a:hover { color: #33C5CB !important; }
+            a { color: var(--primary) !important; }
+            a:hover { color: #6FE8E0 !important; }
+            /* Dash checklist / radio labels */
+            .dash-checkbox-option, .dash-radio-option {
+                background-color: transparent !important;
+            }
+            label, .form-check-label, .dash-label {
+                color: var(--text) !important;
+                background-color: transparent !important;
+            }
         </style>
     </head>
     <body>
