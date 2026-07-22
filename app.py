@@ -59,6 +59,8 @@ app = dash.Dash(
                 background-color: var(--surface-raised) !important;
                 border-color: var(--border) !important;
                 color: var(--text) !important;
+                width: 100% !important;
+                box-sizing: border-box;
             }
             .form-control:focus {
                 border-color: var(--primary) !important;
@@ -66,6 +68,30 @@ app = dash.Dash(
             }
             .form-control::placeholder {
                 color: var(--text-muted) !important;
+            }
+            .dash-input-container > input.dash-input-element {
+                width: 100% !important;
+                display: block !important;
+                box-sizing: border-box !important;
+            }
+            /* Força DatePickerSingle (Dash 3.x) a ocupar 100% da largura */
+            .dash-datepicker {
+                width: 100% !important;
+            }
+            .dash-datepicker-input-wrapper {
+                width: 100% !important;
+                display: block !important;
+            }
+            .dash-datepicker-input-wrapper > div {
+                width: 100% !important;
+            }
+            .dash-datepicker-input-wrapper input.dash-datepicker-input {
+                width: 100% !important;
+            }
+            /* Força Dropdown (dcc.Dropdown) a ocupar 100% */
+            .Select,
+            .Select-control {
+                width: 100% !important;
             }
             code, pre, kbd, samp { font-family: var(--font-mono); }
             /* Select / Dropdown dark overrides */
