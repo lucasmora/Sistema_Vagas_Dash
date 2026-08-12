@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State, ALL, callback_contex
 import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
-from models import listar_tags, get_tag, criar_tag, renomear_tag, excluir_tag
+from db.models import listar_tags, get_tag, criar_tag, renomear_tag, excluir_tag
 from components.forms import form_tag
 
 

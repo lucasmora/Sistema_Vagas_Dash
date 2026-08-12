@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State, callback_context, no
 import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
-from models import get_vaga, listar_historico, atualizar_vaga, excluir_vaga, get_tags_da_vaga
+from db.models import get_vaga, listar_historico, atualizar_vaga, excluir_vaga, get_tags_da_vaga
 from components.pipeline import pipeline_view
 from components.forms import form_editar_vaga
 from styles import (

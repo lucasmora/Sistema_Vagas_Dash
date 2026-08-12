@@ -28,8 +28,8 @@ Centralizar o acompanhamento de candidaturas em um só lugar: cadastro manual + 
 ```
 Sistema_Vagas_Dash/
 ├── app.py                 # Entry point Dash + layout global + routing
-├── database.py            # SQLite schema + connection pool + migrations
-├── models.py              # CRUD: portais, vagas, tags, histórico de status
+├── db/database.py            # SQLite schema + connection pool + migrations
+├── db/models.py              # CRUD: portais, vagas, tags, histórico de status
 ├── styles.py              # Design system (cores, spacing, shadows, componentes)
 ├── requirements.txt       # Dependências Python
 ├── Dockerfile / docker-compose.yml
@@ -107,7 +107,7 @@ docker run -p 8050:8050 -v vagas_db:/app/data vagas-dash
 - **2 requests paralelos** (asyncio): página da vaga + aba "Empresa"
 - **Extração principal**: JSON-LD `schema.org/JobPosting` (dados estruturados confiáveis)
 - **Complementos via regex mínimo**: modalidade, salário bruto, listas (exigências, valorizado, benefícios), habilidades/tags, detalhes da empresa
-- Retorna `dict` pronto para `models.criar_vaga()` + extras organizados em `extras{}`
+- Retorna `dict` pronto para `db.models.criar_vaga()` + extras organizados em `extras{}`
 
 ---
 

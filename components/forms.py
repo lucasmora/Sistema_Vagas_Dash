@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State
 import dash_mantine_components as dmc
 
 from styles import COR_TEXTO_SEC
-from models import listar_portais, listar_tags
+from db.models import listar_portais, listar_tags
 
 TIPO_SALARIO_OPCOES = [
     {"label": "Valor fixo", "value": "fixo"},
@@ -34,14 +34,18 @@ def _number_input(ide: str, placeholder: str = "", value=None):
     )
 
 
-def _date_input(ide: str, value=None):
-    return dmc.DateInput(
+def _date_input(ide: str, label: str = None, value=None):
+    children = []
+    if label:
+        children.append(dmc.Text(label, size="sm", c="dimmed", mb=4))
+    children.append(dmc.DateInput(
         id=ide,
         value=value or None,
         valueFormat="YYYY-MM-DD",
         clearable=True,
         placeholder="DD/MM/AAAA",
-    )
+    ))
+    return html.Div(children)
 
 
 def _select(ide: str, opcoes: list, placeholder: str = "Selecione...",
@@ -222,7 +226,7 @@ def form_nova_vaga():
                 children=[
                     _col(12, dmc.TextInput(
                         id="nova-vaga-nome",
-                        label="Nome *",
+                        label="Nome",
                         placeholder="Ex: Gerente Financeiro - Stone",
                         withAsterisk=True,
                     )),
@@ -251,9 +255,9 @@ def form_nova_vaga():
                         placeholder="Selecione...",
                         clearable=True,
                     )),
-                    _col(3, _date_input("nova-vaga-data-publicacao")),
-                    _col(3, _date_input("nova-vaga-data-encontrada")),
-                    _col(3, _date_input("nova-vaga-data-envio")),
+                    _col(3, _date_input("nova-vaga-data-publicacao", label="Data de Publicação")),
+                    _col(3, _date_input("nova-vaga-data-encontrada", label="Data Encontrada")),
+                    _col(3, _date_input("nova-vaga-data-envio", label="Data de Envio")),
                     _col(6, _slider_campo("Interesse", "nova-vaga-interesse", 3)),
                     _col(6, _slider_campo("Aderência", "nova-vaga-aderencia", 3)),
                     _col(12, dmc.MultiSelect(
@@ -334,7 +338,7 @@ def form_editar_vaga(vaga: dict):
                 children=[
                     _col(12, dmc.TextInput(
                         id="edit-vaga-nome",
-                        label="Nome *",
+                        label="Nome",
                         value=vaga.get("nome", ""),
                         withAsterisk=True,
                     )),
@@ -381,8 +385,10 @@ def form_editar_vaga(vaga: dict):
                         value=str(vaga["portal_id"]) if vaga.get("portal_id") else None,
                     )),
                     _col(3, _date_input("edit-vaga-data-encontrada",
+                                        label="Data Encontrada",
                                         value=vaga.get("data_encontrada") or None)),
                     _col(3, _date_input("edit-vaga-data-envio",
+                                        label="Data de Envio",
                                         value=vaga.get("data_envio") or None)),
                     _col(6, _slider_campo("Interesse", "edit-vaga-interesse",
                                           vaga.get("interesse") or 3)),
@@ -469,6 +475,7 @@ def form_portal(portal: dict = None):
                         value=portal.get("tipo_login", "") if editando else "",
                     ),
                     _date_input("form-portal-data",
+                                label="Última Atualização",
                                 value=portal.get("ultima_atualizacao", "") if editando else None),
                     dmc.Textarea(
                         id="form-portal-notas",

@@ -3,7 +3,7 @@ from dash import html, dcc, callback, Input, Output
 import dash_mantine_components as dmc
 
 from components.navbar import sidebar
-from database import init_db
+from db.database import init_db
 from pages import dashboard, portais, tags, vagas, nova_vaga, detalhe_vaga
 from styles import COR_TEXTO_SEC, SIDEBAR_WIDTH as SIDEBAR_WIDTH_PX
 

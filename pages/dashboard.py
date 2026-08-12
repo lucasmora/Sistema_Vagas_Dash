@@ -3,7 +3,7 @@ import dash_mantine_components as dmc
 
 from components.layout import metric_card
 from components.charts import fig_pizza_status, fig_barras_curriculos, fig_barras_portais
-from models import obter_metricas
+from db.models import obter_metricas
 from styles import COR_PRIMARY, COR_DESTAQUE, COR_ALERTA
 
 

@@ -1,7 +1,7 @@
 import plotly.express as px
 import pandas as pd
 
-from models import vagas_por_status, curriculos_por_dia, vagas_por_portal
+from db.models import vagas_por_status, curriculos_por_dia, vagas_por_portal
 from styles import COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED, COR_BORDA_CLARA, COR_SUPERFICIE, STATUS_CORES, COR_PRIMARY, COR_DESTAQUE
 
 

@@ -13,8 +13,8 @@ docker run -p 8050:8050 -v $(pwd)/vagas.db:/app/vagas.db vagas-dash
 ## Project Structure (key entrypoints)
 ```
 app.py              # Dash app factory, routing, global layout, sidebar, notifications
-database.py         # SQLite schema, migrations, connection context manager
-models.py           # CRUD: portais, vagas, tags, historico_status
+db/database.py      # SQLite schema, migrations, connection context manager
+db/models.py        # CRUD: portais, vagas, tags, historico_status
 styles.py           # Design system (colors, spacing, component styles)
 pages/              # Route handlers (dashboard, vagas, nova_vaga, detalhe_vaga, portais, tags)
 components/         # Reusable UI: cards, charts, forms, layout, navbar, pipeline
@@ -24,7 +24,7 @@ services/infojobs_parser.py  # Async parser (httpx + regex + JSON-LD, no Beautif
 ## Database
 - File: `vagas.db` (persisted via docker volume at `/app/data/vagas.db`)
 - Env: `DB_PATH` (default `vagas.db`)
-- Schema managed in `database.py:SCHEMA_SQL` + `migrar_schema()` for additive migrations
+- Schema managed in `db/database.py:SCHEMA_SQL` + `migrar_schema()` for additive migrations
 - Foreign keys ON, triggers for `updated_at` and `historico_status` on status change
 
 ## Known Issue (from erro.md)
@@ -40,7 +40,7 @@ Fix: update callback to read `salario-tipo` + conditional `salario`/`salario-max
 - 2 parallel requests: vacancy page + company tab
 - Primary extraction: JSON-LD `schema.org/JobPosting`
 - Regex fallbacks: modalidade, salário bruto, listas (exigências/valorizado/benefícios), skills/tags, empresa detalhes
-- Returns `dict` compatible with `models.criar_vaga()` + `extras{}` for UI
+- Returns `dict` compatible with `db.models.criar_vaga()` + `extras{}` for UI
 
 ## Dash Conventions
 - **Routing**: `app.py:display_page()` switches on `pathname` → returns page `layout()`
@@ -74,6 +74,6 @@ No test/lint/typecheck config present.
 | Task | How |
 |------|-----|
 | Add page | Create `pages/nova_pagina.py` with `layout()`, import in `app.py`, add route in `display_page()` |
-| Add model | Edit `database.py:SCHEMA_SQL`, add migration in `migrar_schema()`, add CRUD in `models.py` |
+| Add model | Edit `db/database.py:SCHEMA_SQL`, add migration in `migrar_schema()`, add CRUD in `db/models.py` |
 | Modify parser | Edit `services/infojobs_parser.py` — test with `python -m services.infojobs_parser <vaga_id>` |
 | Debug callback | Check browser console; Dash logs callback registration errors on page load |

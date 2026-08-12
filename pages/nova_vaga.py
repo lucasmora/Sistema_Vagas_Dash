@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State, no_update
 import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 from datetime import date
-from models import criar_vaga, listar_tags, criar_tag, get_portal
+from db.models import criar_vaga, listar_tags, criar_tag, get_portal
 from components.forms import form_nova_vaga
 from services.infojobs_parser import parse_vaga_infojobs_dict
 from styles import (

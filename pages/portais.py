@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State, ALL, callback_contex
 import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
-from models import listar_portais, get_portal, criar_portal, atualizar_portal, excluir_portal
+from db.models import listar_portais, get_portal, criar_portal, atualizar_portal, excluir_portal
 from components.forms import form_portal
 
 

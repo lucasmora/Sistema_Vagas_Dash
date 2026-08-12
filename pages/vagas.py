@@ -1,7 +1,7 @@
 from dash import html, dcc, callback, Input, Output, State
 import dash_mantine_components as dmc
 
-from models import listar_vagas, listar_tags, listar_portais
+from db.models import listar_vagas, listar_tags, listar_portais
 from components.cards import vaga_card
 
 

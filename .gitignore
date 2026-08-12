@@ -36,3 +36,5 @@ env/
 Thumbs.db
 
 .hermes/
+
+vagas.db

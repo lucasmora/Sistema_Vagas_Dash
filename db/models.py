@@ -1,7 +1,7 @@
 import sqlite3
 from typing import Optional
 
-from database import get_db, row_to_dict
+from db.database import get_db, row_to_dict
 
 
 # ─── Portais ───────────────────────────────────────────────────────
