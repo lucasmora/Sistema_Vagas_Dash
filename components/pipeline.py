@@ -1,8 +1,7 @@
 from dash import html
 from styles import (
     COR_BORDA_CLARA, COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
-    COR_ELEVADO, COR_DESTAQUE, COR_PRIMARY, COR_PERIGO,
-    PIPELINE_ORDEM, STATUS_CORES, pipeline_step_style,
+    COR_ELEVADO, COR_PERIGO, PIPELINE_ORDEM, STATUS_CORES, pipeline_step_style,
     pipeline_connector_style, badge_style,
 )
 

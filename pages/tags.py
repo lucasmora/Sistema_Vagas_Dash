@@ -1,4 +1,3 @@
-import dash
 from dash import html, dcc, callback, Input, Output, State, ALL, callback_context, no_update
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
@@ -6,8 +5,7 @@ from dash.exceptions import PreventUpdate
 from models import listar_tags, criar_tag, excluir_tag
 from components.forms import form_tag
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA, COR_PRIMARY,
-    COR_PERIGO, CARD_STYLE, tag_style,
+    COR_TEXTO, COR_TEXTO_SEC, COR_PERIGO, CARD_STYLE
 )
 
 

@@ -1,28 +1,16 @@
-import dash
-from dash import html, dcc, callback, Input, Output, State, ALL, callback_context, no_update
+from dash import html, dcc, callback, Input, Output, State
 import dash_bootstrap_components as dbc
-from dash.exceptions import PreventUpdate
 
-from models import listar_vagas, atualizar_vaga, get_vaga, listar_tags
+from models import listar_vagas, listar_tags
 from components.cards import vaga_card
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
-    COR_BORDA, COR_BORDA_CLARA, COR_PRIMARY,
-    COR_SUPERFICIE, CARD_STYLE, INPUT_STYLE,
+    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA,
+    COR_PRIMARY, COR_SUPERFICIE, CARD_STYLE, INPUT_STYLE
 )
 
 
 def _vaga_item(vaga: dict) -> html.Div:
-    portal_nome = "Sem portal"
-    if vaga.get("portal_id"):
-        try:
-            from models import get_portal
-            portal = get_portal(vaga["portal_id"])
-            if portal:
-                portal_nome = portal["nome"]
-        except:
-            pass
-    return vaga_card(vaga, portal_nome)
+    return vaga_card(vaga, vaga.get("portal_nome") or "Sem portal")
 
 
 def layout() -> html.Div:
@@ -155,23 +143,3 @@ def render_lista_vagas(_trigger, status_filtro, portal_filtro, tag_filtro, busca
             style={"color": COR_TEXTO_SEC},
         )
     return [_vaga_item(v) for v in vagas]
-
-
-@callback(
-    Output("vagas-trigger", "data", allow_duplicate=True),
-    Output("notification", "data", allow_duplicate=True),
-    Input({"type": "btn-excluir-vaga", "index": ALL}, "n_clicks"),
-    State("vagas-trigger", "data"),
-    prevent_initial_call=True,
-)
-def excluir_vaga_callback(n_clicks_list, trigger):
-    ctx = callback_context
-    if not ctx.triggered:
-        raise PreventUpdate
-    vaga_id = ctx.triggered_id["index"]
-    try:
-        from models import excluir_vaga
-        excluir_vaga(vaga_id)
-        return trigger + 1, {"message": "Vaga excluída!", "type": "success"}
-    except Exception as e:
-        return trigger + 1, {"message": f"Erro ao excluir vaga: {str(e)}", "type": "danger"}

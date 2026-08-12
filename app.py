@@ -4,10 +4,9 @@ import dash_bootstrap_components as dbc
 
 from components.navbar import sidebar
 from database import init_db
-from pages import dashboard, portais, tags, vagas, nova_vaga, detalhe_vaga, vagas, nova_vaga, detalhe_vaga
+from pages import dashboard, portais, tags, vagas, nova_vaga, detalhe_vaga
 from styles import (
-    COR_FUNDO, COR_TEXTO_SEC, COR_TEXTO, COR_SUPERFICIE, COR_ELEVADO,
-    COR_BORDA, COR_BORDA_CLARA, COR_PRIMARY, SIDEBAR_WIDTH, CONTENT_PADDING,
+    COR_FUNDO, COR_TEXTO_SEC, SIDEBAR_WIDTH, CONTENT_PADDING,
 )
 
 init_db()
@@ -93,7 +92,6 @@ app = dash.Dash(
             .Select-control {
                 width: 100% !important;
             }
-            code, pre, kbd, samp { font-family: var(--font-mono); }
             /* Select / Dropdown dark overrides */
             .Select-control {
                 background-color: var(--surface-raised) !important;
@@ -244,7 +242,6 @@ app = dash.Dash(
 app.layout = html.Div(
     [
         dcc.Location(id="url", refresh=False),
-        dcc.Store(id="edit_mode", data=False),
         dcc.Store(id="editing_portal_id", data=None),
         dcc.Store(id="notification", data=None),
         sidebar(),
@@ -268,8 +265,7 @@ def _pagina_placeholder(titulo: str, descricao: str = "") -> html.Div:
     return html.Div(
         [
             html.H2(titulo, style={"color": COR_TEXTO_SEC, "marginBottom": "12px"}),
-            html.P(descricao or f"Página {titulo} — em construção",
-                   style={"color": COR_TEXTO_SEC}),
+            html.P(descricao, style={"color": COR_TEXTO_SEC}),
         ]
     )
 

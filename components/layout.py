@@ -1,5 +1,5 @@
 from dash import html
-from styles import COR_TEXTO_SEC, COR_TEXTO_MUTED, COR_PRIMARY, CARD_STYLE
+from styles import COR_TEXTO_MUTED, COR_PRIMARY, CARD_STYLE
 
 
 def metric_card(titulo: str, valor, cor: str = COR_PRIMARY) -> html.Div:

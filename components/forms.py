@@ -24,12 +24,6 @@ TIPO_SALARIO_OPCOES = [
     {"label": "Não informado", "value": "nai"},
 ]
 
-STATUS_OPCOES = [
-    {"label": s, "value": s}
-    for s in ["Interessado", "Currículo Enviado", "Entrevista Agendada",
-              "Em Processo", "Oferta", "Aceito", "Rejeitado"]
-]
-
 MODALIDADE_OPCOES = [
     {"label": m, "value": m}
     for m in ["Remoto", "Presencial", "Híbrido"]

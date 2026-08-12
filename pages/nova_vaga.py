@@ -1,14 +1,12 @@
-from datetime import datetime, date
-from dash import html, dcc, callback, Input, Output, State, callback_context, no_update
+from dash import html, dcc, callback, Input, Output, State, no_update
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
-
+from datetime import date
 from models import criar_vaga, listar_portais, listar_tags, criar_tag, get_portal
-from components.forms import form_nova_vaga, form_editar_vaga
+from components.forms import form_nova_vaga
 from services.infojobs_parser import parse_vaga_infojobs_dict
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA, COR_PRIMARY,
-    COR_ALERTA, COR_PERIGO, COR_SUCESSO, CARD_STYLE, INPUT_STYLE,
+    COR_TEXTO, COR_ALERTA, COR_PERIGO, COR_SUCESSO
 )
 
 
@@ -196,7 +194,7 @@ def salvar_vaga(n_clicks, nome, empresa, link, salario, salario_max, modalidade,
             data_publicacao=data_publicacao or "",
             fonte_id=fonte_id,
         )
-        return f"/vagas/{vaga_id}", {"message": "Vaga criada com sucesso!", "type": "success"}
+        return "/vagas", {"message": "Vaga criada com sucesso!", "type": "success"}
     except Exception as e:
         return no_update, {"message": f"Erro ao criar vaga: {str(e)}", "type": "danger"}
 

@@ -5,12 +5,12 @@ from database import get_db, row_to_dict
 # ─── Portais ───────────────────────────────────────────────────────
 
 def criar_portal(nome: str, url_base: str = "", tipo_login: str = "",
-                 notas: str = "") -> int | None:
+                 notas: str = "", ultima_atualizacao: str = "") -> int | None:
     with get_db() as conn:
         cur = conn.execute(
-            "INSERT INTO portais (nome, url_base, tipo_login, notas)"
-            " VALUES (?, ?, ?, ?)",
-            (nome, url_base, tipo_login, notas),
+            "INSERT INTO portais (nome, url_base, tipo_login, notas, ultima_atualizacao)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (nome, url_base, tipo_login, notas, ultima_atualizacao),
         )
         return cur.lastrowid
 
@@ -32,12 +32,13 @@ def get_portal(portal_id: int) -> Optional[dict]:
 
 
 def atualizar_portal(portal_id: int, nome: str, url_base: str = "",
-                     tipo_login: str = "", notas: str = "") -> None:
+                     tipo_login: str = "", notas: str = "",
+                     ultima_atualizacao: str = "") -> None:
     with get_db() as conn:
         conn.execute(
-            "UPDATE portais SET nome=?, url_base=?, tipo_login=?, notas=?"
-            " WHERE id=?",
-            (nome, url_base, tipo_login, notas, portal_id),
+            "UPDATE portais SET nome=?, url_base=?, tipo_login=?, notas=?,"
+            " ultima_atualizacao=? WHERE id=?",
+            (nome, url_base, tipo_login, notas, ultima_atualizacao, portal_id),
         )
 
 
@@ -150,27 +151,29 @@ def listar_vagas(
     tag_id: Optional[int] = None,
     busca: str = "",
 ) -> list[dict]:
-    sql = "SELECT * FROM vagas WHERE 1=1"
+    sql = """SELECT v.*, COALESCE(p.nome, 'Sem portal') AS portal_nome
+             FROM vagas v LEFT JOIN portais p ON v.portal_id = p.id
+             WHERE 1=1"""
     params = []
     if status_filtro:
         placeholders = ",".join("?" for _ in status_filtro)
-        sql += f" AND status IN ({placeholders})"
+        sql += f" AND v.status IN ({placeholders})"
         params.extend(status_filtro)
     if portal_id:
-        sql += " AND portal_id = ?"
+        sql += " AND v.portal_id = ?"
         params.append(portal_id)
     if tag_id:
-        sql += """ AND id IN (
+        sql += """ AND v.id IN (
             SELECT vaga_id FROM vaga_tags WHERE tag_id = ?
         )"""
         params.append(tag_id)
     if busca:
         sql += """ AND (
-            nome LIKE ? OR empresa LIKE ? OR descricao LIKE ?
+            v.nome LIKE ? OR v.empresa LIKE ? OR v.descricao LIKE ?
         )"""
         like = f"%{busca}%"
         params.extend([like, like, like])
-    sql += " ORDER BY created_at DESC"
+    sql += " ORDER BY v.created_at DESC"
     with get_db() as conn:
         rows = conn.execute(sql, params).fetchall()
         return [row_to_dict(r) for r in rows]

@@ -1,4 +1,3 @@
-import dash
 from dash import html, dcc, callback, Input, Output, State, ALL, callback_context, no_update
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
@@ -176,9 +175,10 @@ def salvar_portal(n_clicks, nome, url, login, data, notas, edit_id, trigger):
             "message": "Nome é obrigatório", "type": "warning",
         }
     if edit_id:
-        atualizar_portal(edit_id, nome, url or "", login or "", notas or "")
+        atualizar_portal(edit_id, nome, url or "", login or "", notas or "",
+                         data or "")
         msg = "Portal atualizado com sucesso!"
     else:
-        criar_portal(nome, url or "", login or "", notas or "")
+        criar_portal(nome, url or "", login or "", notas or "", data or "")
         msg = "Portal criado com sucesso!"
     return trigger + 1, None, {"message": msg, "type": "success"}

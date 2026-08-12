@@ -33,11 +33,8 @@ PIPELINE_ORDEM = [
     "Aceito",
 ]
 
-STATUS_TERMINAL = "Rejeitado"
-
 # Sombras escuras (mais intensas em dark mode)
 SOMBRA_NIVEL_1 = "0 1px 3px rgba(2,8,23,0.45), 0 1px 2px rgba(2,8,23,0.3)"
-SOMBRA_NIVEL_2 = "0 6px 12px rgba(2,8,23,0.55), 0 3px 6px rgba(2,8,23,0.4)"
 
 # Espaçamento Airy
 ESP_XS = "4px"
@@ -63,12 +60,6 @@ CARD_STYLE = {
     "transition": "box-shadow 0.2s ease, border-color 0.2s ease",
 }
 
-CARD_STYLE_HOVER = {
-    **CARD_STYLE,
-    "boxShadow": SOMBRA_NIVEL_2,
-    "borderColor": COR_BORDA,
-}
-
 INPUT_STYLE = {
     "backgroundColor": COR_ELEVADO,
     "border": f"1px solid {COR_BORDA}",
@@ -81,23 +72,13 @@ INPUT_STYLE = {
     "transition": "border-color 0.15s ease, box-shadow 0.15s ease",
 }
 
-INPUT_FOCUS_STYLE = {
-    "borderColor": COR_PRIMARY,
-    "boxShadow": f"0 0 0 3px rgba(46, 211, 200, 0.28)",
-}
-
 SELECT_STYLE = {
     **INPUT_STYLE,
     "appearance": "auto",
 }
 
 SIDEBAR_WIDTH = 2
-CONTENT_WIDTH = 10
 CONTENT_PADDING = "32px 40px"
-
-BADGE_OPACITY = 0.1
-TAG_OPACITY = 0.12
-
 
 def badge_style(status: str) -> dict:
     cor = STATUS_CORES.get(status, COR_BORDA)
@@ -157,28 +138,7 @@ def pipeline_connector_style(ativo: bool) -> dict:
     }
 
 
-def input_style() -> dict:
-    return {
-        **INPUT_STYLE,
-    }
-
-
-def input_focus_style() -> dict:
-    return {
-        **INPUT_STYLE,
-        **INPUT_FOCUS_STYLE,
-    }
-
-
-def select_style() -> dict:
-    return {**SELECT_STYLE}
-
-
 COLUNA_ESTILO = {
     "marginBottom": "20px",
     "width": "100%",
 }
-
-
-def coluna_estilo() -> dict:
-    return COLUNA_ESTILO

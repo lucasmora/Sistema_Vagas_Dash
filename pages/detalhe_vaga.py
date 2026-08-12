@@ -1,13 +1,12 @@
-import dash
-from dash import html, dcc, callback, Input, Output, State, callback_context, no_update, MATCH, ALL
+from dash import html, dcc, callback, Input, Output, State, callback_context, no_update, ALL
 import dash_bootstrap_components as dbc
 from dash.exceptions import PreventUpdate
 
-from models import get_vaga, listar_historico, atualizar_vaga, excluir_vaga, get_tags_da_vaga, criar_tag
+from models import get_vaga, listar_historico, atualizar_vaga, excluir_vaga, get_tags_da_vaga
 from components.pipeline import pipeline_view
-from components.forms import form_editar_vaga, form_nova_vaga
+from components.forms import form_editar_vaga
 from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
+    COR_TEXTO, COR_TEXTO_SEC,
     COR_BORDA_CLARA, COR_PRIMARY, COR_PERIGO, COR_ELEVADO,
     CARD_STYLE, tag_style, SOMBRA_NIVEL_1,
     COLUNA_ESTILO,
@@ -40,6 +39,7 @@ def _info_campo(label, valor):
 def layout() -> html.Div:
     return html.Div([
         dcc.Store(id="vaga-id-store", data=None),
+        dcc.Store(id="detalhe-trigger", data=0),
         html.Div(id="page-content-placeholder"),
     ])
 
@@ -47,10 +47,10 @@ def layout() -> html.Div:
 @callback(
     Output("page-content-placeholder", "children"),
     Output("vaga-id-store", "data"),
-    Input("url", "pathname"),
-    prevent_initial_call=True,
+    Input("detalhe-trigger", "data"),
+    State("url", "pathname"),
 )
-def display_page(pathname):
+def display_page(trigger, pathname):
     if not pathname.startswith("/vagas/"):
         raise PreventUpdate
     
@@ -366,7 +366,6 @@ def editar_vaga(n_clicks_list, vaga_id):
 
 @callback(
     Output("edit-mode-placeholder", "children", allow_duplicate=True),
-    Output("vagas-trigger", "data", allow_duplicate=True),
     Output("notification", "data", allow_duplicate=True),
     Input({"type": "btn-excluir-vaga-detalhe", "index": ALL}, "n_clicks"),
     State("vaga-id-store", "data"),
@@ -382,14 +381,13 @@ def excluir_vaga_detalhe(n_clicks_list, vaga_id):
     
     try:
         excluir_vaga(vaga_id)
-        return None, None, {"message": "Vaga excluída!", "type": "success"}
+        return None, {"message": "Vaga excluída!", "type": "success"}
     except Exception as e:
-        return None, None, {"message": f"Erro ao excluir vaga: {str(e)}", "type": "danger"}
+        return None, {"message": f"Erro ao excluir vaga: {str(e)}", "type": "danger"}
 
 
 @callback(
     Output("status-dropdown", "value", allow_duplicate=True),
-    Output("vagas-trigger", "data", allow_duplicate=True),
     Output("notification", "data", allow_duplicate=True),
     Input("btn-atualizar-status", "n_clicks"),
     State("status-dropdown", "value"),
@@ -402,10 +400,10 @@ def atualizar_status(n_clicks, novo_status, vaga_id):
     
     vaga = get_vaga(vaga_id)
     if not vaga:
-        return no_update, None, {"message": "Vaga não encontrada", "type": "danger"}
+        return no_update, {"message": "Vaga não encontrada", "type": "danger"}
     
     if vaga.get("status") == novo_status:
-        return no_update, None, {"message": "Status já está definido", "type": "info"}
+        return no_update, {"message": "Status já está definido", "type": "info"}
     
     try:
         atualizar_vaga(vaga_id, **{
@@ -425,13 +423,12 @@ def atualizar_status(n_clicks, novo_status, vaga_id):
             "notas": vaga.get("notas") or "",
             "tag_ids": [t.get("id") if isinstance(t, dict) else t for t in vaga.get("_tags", [])],
         })
-        return novo_status, None, {"message": "Status atualizado com sucesso!", "type": "success"}
+        return novo_status, {"message": "Status atualizado com sucesso!", "type": "success"}
     except Exception as e:
-        return no_update, None, {"message": f"Erro ao atualizar status: {str(e)}", "type": "danger"}
+        return no_update, {"message": f"Erro ao atualizar status: {str(e)}", "type": "danger"}
 
 
 @callback(
-    Output("vagas-trigger", "data", allow_duplicate=True),
     Output("notification", "data", allow_duplicate=True),
     Input("btn-salvar-edicao", "n_clicks"),
     State("edit-vaga-nome", "value"),
@@ -449,22 +446,24 @@ def atualizar_status(n_clicks, novo_status, vaga_id):
     State("edit-vaga-descricao", "value"),
     State("edit-vaga-notas", "value"),
     State("vaga-id-store", "data"),
-    State("vagas-trigger", "data"),
     prevent_initial_call=True,
 )
 def salvar_edicao_vaga(
     n_clicks, nome, empresa, link, salario, salario_max, modalidade,
     portal, data_encontrada, data_envio, interesse, aderencia, tag_ids,
-    descricao, notas, vaga_id, trigger
+    descricao, notas, vaga_id
 ):
     if not n_clicks:
         raise PreventUpdate
     
     nome = (nome or "").strip()
     if not nome:
-        return no_update, None, {"message": "Nome é obrigatório", "type": "warning"}
+        return {"message": "Nome é obrigatório", "type": "warning"}
     
     tag_ids = tag_ids or []
+    vaga_atual = get_vaga(vaga_id)
+    if not vaga_atual:
+        return {"message": "Vaga não encontrada", "type": "danger"}
     try:
         atualizar_vaga(
             vaga_id,
@@ -477,16 +476,18 @@ def salvar_edicao_vaga(
             descricao=descricao or "",
             interesse=int(interesse) if interesse else 3,
             aderencia=int(aderencia) if aderencia else 3,
-            status="Interessado",
+            status=vaga_atual.get("status") or "Interessado",
             portal_id=int(portal) if portal and portal != "" else None,
             data_encontrada=data_encontrada or "",
             data_envio=data_envio or "",
             notas=notas or "",
             tag_ids=[int(t) for t in tag_ids] if tag_ids else None,
+            data_publicacao=vaga_atual.get("data_publicacao") or "",
+            fonte_id=vaga_atual.get("fonte_id") or "",
         )
-        return trigger + 1, None, {"message": "Vaga atualizada com sucesso!", "type": "success"}
+        return {"message": "Vaga atualizada com sucesso!", "type": "success"}
     except Exception as e:
-        return no_update, None, {"message": f"Erro ao atualizar vaga: {str(e)}", "type": "danger"}
+        return {"message": f"Erro ao atualizar vaga: {str(e)}", "type": "danger"}
 
 @callback(
     Output("collapse-descricao", "is_open"),

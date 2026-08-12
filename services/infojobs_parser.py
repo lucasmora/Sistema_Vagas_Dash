@@ -163,14 +163,6 @@ def _extrair_lista_secao(html: str, secao_titulo: str) -> list[str]:
     itens = re.findall(r'<li>\s*([^<]+)\s*</li>', lista_html)
     return [html_mod.unescape(item.strip()) for item in itens if item.strip()]
 
-
-def _extrair_habilidades(html: str) -> list[str]:
-    """Extrai habilidades/tags do formato <div class="tag ..."><span>texto</span></div>"""
-    padrao = r'<div class="tag[^"]*"[^>]*>\s*<span>\s*([^<]+)\s*</span>'
-    matches = re.findall(padrao, html)
-    return [m.strip() for m in matches if m.strip()]
-
-
 def _extrair_empresa_url(html: str, empresa_nome: str) -> str:
     """Extrai URL da empresa a partir do nome no VacancyHeader"""
     # Estratégia: encontrar links no bloco VacancyHeader que tenham o nome da empresa
@@ -264,14 +256,6 @@ def _extrair_habilidades(html: str) -> list[str]:
     # Filtrar ruído conhecido (decodificado)
     ruido = {"nova", "new", "urgente", "destaque", "contratação urgente", "contratacao urgente"}
     return [h for h in habilidades if h.lower().strip() not in ruido]
-
-
-def _extrair_adequacao_media(html: str) -> str:
-    """Extrai adequação média dos inscritos da aba 'Comparativo'"""
-    match = re.search(r'A adequação média para os candidatos inscritos é de\s*<span[^>]*>([^<]+)</span>', html)
-    if match:
-        return match.group(1).strip()
-    return ""
 
 
 def parse_vaga_infojobs(vaga_id: str) -> Optional[VagaInfoJobs]:
