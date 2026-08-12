@@ -1,6 +1,6 @@
 # Sistema de Vagas Dash
 
-Dashboard web em **Python (Dash/Plotly/Dash Bootstrap Components)** para gerenciar candidaturas a vagas de emprego. Permite cadastrar vagas, acompanhar pipeline de seleção, importar dados do **InfoJobs** via parser customizado (JSON-LD + regex, sem BeautifulSoup), e visualizar métricas/gráficos.
+Dashboard web em **Python (Dash/Plotly/Dash Mantine Components)** para gerenciar candidaturas a vagas de emprego. Permite cadastrar vagas, acompanhar pipeline de seleção, importar dados do **InfoJobs** via parser customizado (JSON-LD + regex, sem BeautifulSoup), e visualizar métricas/gráficos.
 
 ---
 
@@ -14,12 +14,12 @@ Centralizar o acompanhamento de candidaturas em um só lugar: cadastro manual + 
 
 | Camada | Tecnologia |
 |--------|------------|
-| **Web Framework** | Dash ≥ 3.0 + Dash Bootstrap Components 2.x |
+| **Web Framework** | Dash ≥ 3.0 + Dash Mantine Components 2.x |
 | **Visualização** | Plotly 5.x |
 | **Dados** | SQLite (via `sqlite3` stdlib) + SQL raw |
 | **Parser InfoJobs** | `httpx` + `regex` + `json` (stdlib) — **sem BeautifulSoup** |
 | **Container** | Docker (Python 3.11 slim) + docker compose |
-| **UI/Estilo** | Dark mode custom (CSS inline + `index_string`), fontes IBM Plex Sans + JetBrains Mono |
+| **UI/Estilo** | Dark mode Mantine (`MantineProvider` + `index_string`), fontes IBM Plex Sans + JetBrains Mono |
 
 ---
 
@@ -27,24 +27,25 @@ Centralizar o acompanhamento de candidaturas em um só lugar: cadastro manual + 
 
 ```
 Sistema_Vagas_Dash/
-├── app.py                 # Entry point Dash + layout global + routing
+├── app.py                 # Entry point Dash + layout global + routing + notificações
 ├── db/database.py            # SQLite schema + connection pool + migrations
 ├── db/models.py              # CRUD: portais, vagas, tags, histórico de status
-├── styles.py              # Design system (cores, spacing, shadows, componentes)
+├── styles.py              # Design system (tokens Mantine, spacing, status colors)
 ├── requirements.txt       # Dependências Python
 ├── Dockerfile / docker-compose.yml
 ├── pages/                 # Páginas (rotas Dash)
 │   ├── dashboard.py       # Métricas + gráficos (pizza, barras)
 │   ├── vagas.py           # Lista com filtros (status, portal, tag, busca)
-│   ├── nova_vaga.py       # Formulário + parser InfoJobs (modal autofill)
-│   ├── detalhe_vaga.py    # Detalhe + pipeline Kanban + histórico
+│   ├── nova_vaga.py       # Monta o formulário de vaga (form_vaga)
+│   ├── detalhe_vaga.py    # Detalhe + pipeline Kanban + histórico + editar/excluir
 │   ├── portais.py         # CRUD portais
 │   └── tags.py            # CRUD tags
 ├── components/
-│   ├── cards.py           # vaga_card, metric_card
+│   ├── cards.py           # vaga_card
 │   ├── charts.py          # Plotly figures (pizza status, barras currículos/portais)
-│   ├── forms.py           # Formulários reutilizáveis
-│   ├── layout.py          # metric_card, coluna_estilo
+│   ├── forms.py           # Formulários (portal, tag), helpers de input, modal autofill InfoJobs
+│   ├── vaga_form.py       # Formulário único de vaga (criar/editar) + callbacks salvar/autofill
+│   ├── layout.py          # metric_card
 │   ├── navbar.py          # Sidebar + navegação
 │   └── pipeline.py        # Componente visual Kanban pipeline
 └── services/
@@ -81,7 +82,7 @@ python app.py
 docker compose up --build
 # ou
 docker build -t vagas-dash .
-docker run -p 8050:8050 -v vagas_db:/app/data vagas-dash
+docker run -p 8050:8050 -e DB_PATH=/app/data/vagas.db -v vagas_db:/app/data vagas-dash
 ```
 
 > O banco é persistido via volume Docker `vagas_db` (mapeado em `/app/data/`).
@@ -93,7 +94,7 @@ docker run -p 8050:8050 -v vagas_db:/app/data vagas-dash
 | Página | Funcionalidades |
 |--------|-----------------|
 | **Dashboard** | 4 cards de métricas + 3 gráficos Plotly (pizza status, barras currículos/dia, barras por portal) |
-| **Vagas** | Lista em cards com filtros laterais (status multi-check, portal dropdown, tag dropdown, busca texto), excluir |
+| **Vagas** | Lista em cards com filtros laterais (status multi-check, portal dropdown, tag dropdown, busca texto) — exclusão feita na página de detalhe |
 | **Nova Vaga** | Formulário completo com sliders de interesse/aderência, tipo de salário (fixo/faixa/não informado), tags inline, + **modal autofill InfoJobs** (cola ID → parser JSON-LD + HTML → pré-preenche tudo) |
 | **Detalhe Vaga** | Visualização completa + pipeline Kanban clicável + histórico de status + editar/excluir |
 | **Portais** | CRUD lateral (lista à esquerda, form à direita) |
@@ -123,7 +124,7 @@ docker run -p 8050:8050 -v vagas_db:/app/data vagas-dash
 
 ```
 dash>=3.0.4
-dash-bootstrap-components>=2.0.4
+dash-mantine-components>=2.0.0
 plotly>=5.24.1
 pandas>=2.2.2
 httpx>=0.27.0
@@ -133,12 +134,12 @@ httpx>=0.27.0
 
 ## 🎨 Design System (Resumo)
 
-- **Tema**: Dark mode navy (`#060B17` background)
-- **Cores semânticas**: Primary teal `#2ED3C8`, Destaque roxo `#8B7CFF`, Sucesso verde `#2FCB70`, Alerta âmbar `#F5A524`, Perigo vermelho `#FF5F6D`
-- **Status colors**: Mapeamento fixo por status (usado em badges, pipeline, gráficos)
+- **Tema**: Dark mode via `dmc.MantineProvider` (theme teal), cores via CSS variables do Mantine (`var(--mantine-*)` em `styles.py`)
+- **Cores semânticas**: `COR_PRIMARY` = filled teal, `COR_DESTAQUE` = violet-5, `COR_SUCESSO` = teal-5, `COR_ALERTA` = yellow-6, `COR_PERIGO` = red-6
+- **Status colors**: Mapeamento fixo hex por status (`STATUS_CORES` em `styles.py`) — usado em badges, pipeline, gráficos
 - **Tipografia**: IBM Plex Sans (UI) + JetBrains Mono (code/data)
 - **Espaçamento**: Sistema 4px base (xs=4, sm=8, md=16, lg=24, xl=32)
-- **Componentes**: Cards elevados, inputs dark, badges pill, tags, pipeline steps
+- **Componentes**: Cards elevados (Paper), inputs dark, badges pill, tags, pipeline steps
 
 ---
 
