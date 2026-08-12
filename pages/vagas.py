@@ -1,12 +1,8 @@
 from dash import html, dcc, callback, Input, Output, State
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 
-from models import listar_vagas, listar_tags
+from models import listar_vagas, listar_tags, listar_portais
 from components.cards import vaga_card
-from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_BORDA_CLARA,
-    COR_PRIMARY, COR_SUPERFICIE, CARD_STYLE, INPUT_STYLE
-)
 
 
 def _vaga_item(vaga: dict) -> html.Div:
@@ -14,95 +10,69 @@ def _vaga_item(vaga: dict) -> html.Div:
 
 
 def layout() -> html.Div:
+    statuses = ["Interessado", "Currículo Enviado", "Entrevista Agendada",
+                "Em Processo", "Oferta", "Aceito", "Rejeitado"]
+
     return html.Div([
         dcc.Store(id="vagas-trigger", data=0),
-        html.H2("Vagas", style={
-            "color": COR_TEXTO, "fontWeight": 600, "marginBottom": "24px",
-        }),
-        dbc.Row([
-            dbc.Col([
-                html.Div([
-                    html.H5("Filtros", style={
-                        "color": COR_TEXTO, "marginBottom": "20px", "fontWeight": 600,
-                    }),
-                    html.Div([
-                        html.Label("Status", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                            "marginBottom": "6px", "fontWeight": 500,
-                        }),
-                        dcc.Checklist(
-                            id="filtro-status",
-                            options=[
-                                {"label": s, "value": s}
-                                for s in ["Interessado", "Currículo Enviado", "Entrevista Agendada",
-                                         "Em Processo", "Oferta", "Aceito", "Rejeitado"]
-                            ],
-                            value=[],
-                            style={
-                                "backgroundColor": COR_SUPERFICIE,
-                                "border": f"1px solid {COR_BORDA_CLARA}",
-                                "borderRadius": "8px",
-                                "padding": "12px",
-                                "color": COR_TEXTO,
-                                "fontSize": "0.875rem",
-                            },
-                            inputStyle={"marginRight": "8px", "accentColor": COR_PRIMARY},
-                            labelStyle={"marginBottom": "6px", "display": "block"},
-                        ),
-                        html.Hr(style={
-                            "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
-                            "opacity": 0.5,
-                        }),
-                        html.Label("Portal", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                            "marginBottom": "6px", "fontWeight": 500,
-                        }),
-                        dbc.Select(
-                            id="filtro-portal",
-                            options=[{"label": "Todos", "value": ""}],
-                            value="",
-                        ),
-                        html.Hr(style={
-                            "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
-                            "opacity": 0.5,
-                        }),
-                        html.Label("Tag", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                            "marginBottom": "6px", "fontWeight": 500,
-                        }),
-                        dbc.Select(
-                            id="filtro-tag",
-                            options=[{"label": "Todas", "value": ""}],
-                            value="",
-                        ),
-                        html.Hr(style={
-                            "borderColor": COR_BORDA_CLARA, "margin": "20px 0",
-                            "opacity": 0.5,
-                        }),
-                        html.Label("Busca", style={
-                            "color": COR_TEXTO_SEC, "fontSize": "0.8125rem",
-                            "marginBottom": "6px", "fontWeight": 500,
-                        }),
-                        dcc.Input(
-                            id="filtro-busca",
-                            placeholder="Busca por nome, empresa...",
-                            type="text",
-                            style={**INPUT_STYLE, "width": "100%"},
-                        ),
-                    ]),
-                ], style={**CARD_STYLE}),
-            ], width=3),
-            dbc.Col(html.Div(id="vagas-lista"), width=9),
-        ], className="g-4"),
+        dmc.Title("Vagas", order=2, mb="lg"),
+        dmc.Grid(
+            gutter="lg",
+            children=[
+                dmc.GridCol(
+                    span=3,
+                    children=dmc.Paper(
+                        p="lg",
+                        radius="md",
+                        shadow="sm",
+                        withBorder=True,
+                        children=[
+                            dmc.Title("Filtros", order=5, mb="md"),
+                            dmc.CheckboxGroup(
+                                id="filtro-status",
+                                label="Status",
+                                value=[],
+                                children=[
+                                    dmc.Checkbox(label=s, value=s)
+                                    for s in statuses
+                                ],
+                            ),
+                            dmc.Divider(my="lg"),
+                            dmc.Select(
+                                id="filtro-portal",
+                                label="Portal",
+                                data=[{"label": "Todos", "value": ""}],
+                                allowDeselect=False,
+                                value="",
+                            ),
+                            dmc.Divider(my="lg"),
+                            dmc.Select(
+                                id="filtro-tag",
+                                label="Tag",
+                                data=[{"label": "Todas", "value": ""}],
+                                allowDeselect=False,
+                                value="",
+                            ),
+                            dmc.Divider(my="lg"),
+                            dmc.TextInput(
+                                id="filtro-busca",
+                                label="Busca",
+                                placeholder="Busca por nome, empresa...",
+                            ),
+                        ],
+                    ),
+                ),
+                dmc.GridCol(html.Div(id="vagas-lista"), span=9),
+            ],
+        ),
     ])
 
 
 @callback(
-    Output("filtro-portal", "options"),
+    Output("filtro-portal", "data"),
     Input("vagas-trigger", "data"),
 )
 def atualizar_opcoes_portais(trigger):
-    from models import listar_portais
     portais = listar_portais()
     opcoes = [{"label": "Todos", "value": ""}]
     for p in portais:
@@ -111,7 +81,7 @@ def atualizar_opcoes_portais(trigger):
 
 
 @callback(
-    Output("filtro-tag", "options"),
+    Output("filtro-tag", "data"),
     Input("vagas-trigger", "data"),
 )
 def atualizar_opcoes_tags(trigger):
@@ -138,8 +108,5 @@ def render_lista_vagas(_trigger, status_filtro, portal_filtro, tag_filtro, busca
         busca=busca or "",
     )
     if not vagas:
-        return html.P(
-            "Nenhuma vaga encontrada.",
-            style={"color": COR_TEXTO_SEC},
-        )
-    return [html.Div(_vaga_item(v), style={"marginBottom": "20px"}) for v in vagas]
+        return dmc.Text("Nenhuma vaga encontrada.", c="dimmed")
+    return [html.Div(_vaga_item(v)) for v in vagas]

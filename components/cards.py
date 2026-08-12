@@ -1,9 +1,7 @@
-from dash import html, dcc
-from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
-    COR_SUCESSO, COR_PRIMARY, CARD_STYLE, badge_style, tag_style,
-    RAIO_BORDA_PILL, ESP_XS, ESP_MD,
-)
+import dash_mantine_components as dmc
+from dash import dcc
+
+from styles import STATUS_CORES, COR_TEXTO_MUTED, COR_BORDA
 
 
 def _formatar_salario(vaga: dict) -> str:
@@ -20,7 +18,7 @@ def _estrelas(valor: int) -> str:
     return "★" * valor + "☆" * (5 - valor)
 
 
-def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
+def vaga_card(vaga: dict, portal_nome: str = ""):
     nome = vaga.get("nome", "Sem nome")
     empresa = vaga.get("empresa") or "Confidencial"
     status = vaga.get("status", "Interessado")
@@ -45,97 +43,76 @@ def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
     tag_pills = []
     for tag in tags:
         tag_pills.append(
-            html.Span(tag if isinstance(tag, str) else tag.get("nome", ""),
-                      style=tag_style())
+            dmc.Badge(
+                tag if isinstance(tag, str) else tag.get("nome", ""),
+                variant="light",
+                color=COR_BORDA,
+                size="sm",
+                radius="xl",
+            )
         )
 
-    return html.Div(
+    return dmc.Paper(
+        p="lg",
+        radius="md",
+        shadow="sm",
+        withBorder=True,
+        mb="md",
+        style={"display": "flex", "flexDirection": "column"},
         children=[
-            html.Div(
+            dmc.Group(
+                justify="space-between",
+                align="start",
+                wrap="nowrap",
+                gap="md",
                 children=[
-                    html.Div(
-                        children=[
-                            html.H4(nome, style={
-                                "color": COR_TEXTO, "margin": 0,
-                                "fontSize": "1.125rem", "fontWeight": 600,
-                            }),
-                            html.P(empresa, style={
-                                "color": COR_TEXTO_SEC, "margin": "4px 0 0 0",
-                                "fontSize": "0.875rem",
-                            }),
-                        ],
-                        style={"flex": 1},
+                    dmc.Stack(gap=0, children=[
+                        dmc.Text(nome, fw=600, size="lg"),
+                        dmc.Text(empresa, size="sm", c="dimmed"),
+                    ]),
+                    dmc.Badge(
+                        status,
+                        color=STATUS_CORES.get(status, COR_BORDA),
+                        variant="light",
+                        radius="xl",
                     ),
-                    html.Span(status, style=badge_style(status)),
                 ],
-                style={"display": "flex",
-                        "justifyContent": "space-between", "marginBottom": "16px"},
+                mb="sm",
             ),
-            html.Div(
-                children=[
-                    html.Span(info_linha, style={
-                        "color": COR_TEXTO_MUTED, "fontSize": "0.8125rem",
-                    }),
-                ],
-                style={"marginBottom": "8px"},
-            ),
-            html.Div(
-                children=[
-                    html.Span(portal_nome or "Sem portal", style={
-                        "color": COR_TEXTO_MUTED, "fontSize": "0.8125rem",
-                    }),
-                ],
-                style={"marginBottom": "8px"},
+            dmc.Text(info_linha, size="sm", c="dimmed", mb="xs"),
+            dmc.Text(
+                portal_nome or "Sem portal",
+                size="sm",
+                c="dimmed",
+                mb="xs",
             ) if portal_nome else None,
-            html.Div(
-                children=[
-                    html.Span(
-                        f"Interesse: {_estrelas(interesse)}",
-                        style={"color": COR_TEXTO_SEC, "fontSize": "0.8rem",
-                               "marginRight": "16px"},
-                    ),
-                    html.Span(
-                        f"Aderência: {_estrelas(aderencia)}",
-                        style={"color": COR_TEXTO_SEC, "fontSize": "0.8rem"},
-                    ),
-                ],
-                style={"marginBottom": "12px"},
+            dmc.Text(
+                f"Interesse: {_estrelas(interesse)}   ·   Aderência: {_estrelas(aderencia)}",
+                size="sm",
+                c="dimmed",
+                mb="xs",
             ),
-            html.Div(
+            dmc.Group(
                 children=tag_pills,
-                style={"marginBottom": "12px"},
+                gap=6,
+                mb="xs",
             ) if tag_pills else None,
-            html.Div(
-                children=[
-                    html.Span(data_envio_texto, style={
-                        "color": COR_TEXTO_MUTED, "fontSize": "0.8125rem",
-                    }),
-                ],
-                style={"marginBottom": "16px"},
-            ),
-            html.Div(
+            dmc.Text(data_envio_texto, size="sm", c="dimmed", mb="md"),
+            dmc.Group(
+                justify="flex-end",
                 children=[
                     dcc.Link(
-                        html.Span(
+                        dmc.Badge(
                             "Detalhes →",
-                            style={
-                                "color": COR_SUCESSO, "fontSize": "0.8125rem",
-                                "cursor": "pointer", "fontWeight": 500,
-                                "border": f"1px solid {COR_SUCESSO}",
-                                "borderRadius": RAIO_BORDA_PILL,
-                                "padding": f"{ESP_XS} {ESP_MD}",
-                            },
+                            color="teal",
+                            variant="outline",
+                            radius="xl",
+                            size="sm",
                         ),
                         href=f"/vagas/{vaga_id}",
                         style={"textDecoration": "none"},
                     ),
                 ],
-                style={"textAlign": "right"},
             ),
         ],
-        style={
-            **CARD_STYLE,
-            "display": "flex",
-            "flexDirection": "column",
-        },
     )

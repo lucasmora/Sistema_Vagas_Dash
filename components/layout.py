@@ -1,25 +1,21 @@
-from dash import html
-from styles import COR_TEXTO_MUTED, COR_PRIMARY, CARD_STYLE
+import dash_mantine_components as dmc
+from styles import COR_PRIMARY
 
 
-def metric_card(titulo: str, valor, cor: str = COR_PRIMARY) -> html.Div:
-    return html.Div(
+def metric_card(titulo: str, valor, cor: str = COR_PRIMARY):
+    return dmc.Paper(
+        p="lg",
+        radius="md",
+        shadow="sm",
+        withBorder=True,
         children=[
-            html.P(titulo, style={
-                "color": COR_TEXTO_MUTED, "fontSize": "0.75rem",
-                "margin": "0 0 6px 0", "textTransform": "uppercase",
-                "letterSpacing": "0.5px", "fontWeight": 500,
-            }),
-            html.H2(
-                str(valor),
-                style={
-                    "color": cor, "margin": 0, "fontSize": "2.25rem",
-                    "fontWeight": 700,
-                },
+            dmc.Text(
+                titulo,
+                size="xs",
+                tt="uppercase",
+                c="dimmed",
+                fw=500,
             ),
+            dmc.Title(str(valor), order=2, c=cor),
         ],
-        style={
-            **CARD_STYLE,
-            "padding": "32px 32px",
-        },
     )

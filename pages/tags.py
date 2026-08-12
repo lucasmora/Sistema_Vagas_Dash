@@ -1,58 +1,44 @@
 from dash import html, dcc, callback, Input, Output, State, ALL, callback_context, no_update
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
 from models import listar_tags, criar_tag, excluir_tag
 from components.forms import form_tag
-from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_PERIGO, CARD_STYLE
-)
 
 
-def _tag_item(tag: dict) -> html.Div:
-    return html.Div(
+def _tag_item(tag: dict):
+    return dmc.Paper(
+        p="md",
+        radius="md",
+        shadow="sm",
+        withBorder=True,
+        mb="sm",
+        style={"display": "flex", "justifyContent": "space-between",
+               "alignItems": "center"},
         children=[
-            html.Span(f"🏷️ {tag['nome']}", style={
-                "color": COR_TEXTO, "fontSize": "0.95rem", "fontWeight": 500,
-            }),
-            html.Button(
+            dmc.Text(f"🏷️ {tag['nome']}", fw=500),
+            dmc.Button(
                 "Excluir",
                 id={"type": "btn-excluir-tag", "index": tag["id"]},
-                className="btn btn-sm",
-                style={
-                    "backgroundColor": "transparent",
-                    "color": COR_PERIGO,
-                    "border": f"1px solid {COR_PERIGO}",
-                    "borderRadius": "6px",
-                    "padding": "6px 16px",
-                    "cursor": "pointer",
-                    "fontSize": "0.85rem",
-                    "fontWeight": 500,
-                    "transition": "all 0.15s ease",
-                },
+                variant="outline",
+                color="red",
+                size="xs",
             ),
         ],
-        style={
-            **CARD_STYLE,
-            "display": "flex",
-            "justifyContent": "space-between",
-            "alignItems": "center",
-            "marginBottom": "8px",
-            "padding": "16px 20px",
-        },
     )
 
 
 def layout() -> html.Div:
     return html.Div([
         dcc.Store(id="tags-trigger", data=0),
-        html.H2("Tags", style={
-            "color": COR_TEXTO, "fontWeight": 600, "marginBottom": "24px",
-        }),
-        dbc.Row([
-            dbc.Col(html.Div(id="tags-lista"), width=6),
-            dbc.Col(html.Div(id="tags-form-wrapper"), width=6),
-        ], className="g-4"),
+        dmc.Title("Tags", order=2, mb="lg"),
+        dmc.Grid(
+            gutter="lg",
+            children=[
+                dmc.GridCol(html.Div(id="tags-lista"), span=6),
+                dmc.GridCol(html.Div(id="tags-form-wrapper"), span=6),
+            ],
+        ),
     ])
 
 
@@ -63,10 +49,7 @@ def layout() -> html.Div:
 def render_lista(_trigger):
     tags = listar_tags()
     if not tags:
-        return html.P(
-            "Nenhuma tag cadastrada.",
-            style={"color": COR_TEXTO_SEC},
-        )
+        return dmc.Text("Nenhuma tag cadastrada.", c="dimmed")
     return [_tag_item(t) for t in tags]
 
 

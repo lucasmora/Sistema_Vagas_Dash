@@ -1,87 +1,60 @@
 from dash import html, dcc, callback, Input, Output, State, ALL, callback_context, no_update
-import dash_bootstrap_components as dbc
+import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
 from models import listar_portais, get_portal, criar_portal, atualizar_portal, excluir_portal
 from components.forms import form_portal
-from styles import (
-    COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
-    COR_BORDA_CLARA, COR_PRIMARY, COR_PERIGO, CARD_STYLE,
-)
 
 
-def _portal_card(portal: dict) -> html.Div:
-    return html.Div(
+def _portal_card(portal: dict):
+    return dmc.Paper(
+        p="lg",
+        radius="md",
+        shadow="sm",
+        withBorder=True,
+        mb="sm",
         children=[
-            html.Div([
-                html.H5(portal["nome"], style={
-                    "color": COR_TEXTO, "margin": 0, "fontWeight": 600,
-                }),
-                html.P(portal.get("url_base") or "", style={
-                    "color": COR_TEXTO_SEC, "margin": "4px 0", "fontSize": "0.85rem",
-                }),
-                html.P(f"Login: {portal.get('tipo_login') or '—'}", style={
-                    "color": COR_TEXTO_MUTED, "margin": "4px 0", "fontSize": "0.8125rem",
-                }),
-                html.P(f"Última atualização: {portal.get('ultima_atualizacao') or '—'}",
-                        style={
-                            "color": COR_TEXTO_MUTED, "margin": "4px 0",
-                            "fontSize": "0.8125rem",
-                        }),
-                html.P(portal.get("notas") or "", style={
-                    "color": COR_TEXTO_SEC, "margin": "8px 0 0 0", "fontSize": "0.8125rem",
-                }),
-            ]),
-            html.Div([
-                html.Button(
-                    "Editar",
-                    id={"type": "btn-editar-portal", "index": portal["id"]},
-                    className="btn btn-sm",
-                    style={
-                        "backgroundColor": "transparent",
-                        "color": COR_PRIMARY,
-                        "border": f"1px solid {COR_PRIMARY}",
-                        "borderRadius": "6px",
-                        "padding": "6px 16px",
-                        "cursor": "pointer",
-                        "marginRight": "8px",
-                        "fontSize": "0.85rem",
-                        "fontWeight": 500,
-                        "transition": "all 0.15s ease",
-                    },
-                ),
-                html.Button(
-                    "Excluir",
-                    id={"type": "btn-excluir-portal", "index": portal["id"]},
-                    className="btn btn-sm",
-                    style={
-                        "backgroundColor": "transparent",
-                        "color": COR_PERIGO,
-                        "border": f"1px solid {COR_PERIGO}",
-                        "borderRadius": "6px",
-                        "padding": "6px 16px",
-                        "cursor": "pointer",
-                        "fontSize": "0.85rem",
-                        "fontWeight": 500,
-                        "transition": "all 0.15s ease",
-                    },
-                ),
-            ], style={"display": "flex", "marginTop": "16px"}),
+            dmc.Title(portal["nome"], order=5),
+            dmc.Text(portal.get("url_base") or "", size="sm", c="dimmed"),
+            dmc.Text(f"Login: {portal.get('tipo_login') or '—'}",
+                     size="xs", c="dimmed"),
+            dmc.Text(f"Última atualização: {portal.get('ultima_atualizacao') or '—'}",
+                     size="xs", c="dimmed"),
+            dmc.Text(portal.get("notas") or "", size="sm", c="dimmed", mt="xs"),
+            dmc.Group(
+                mt="md",
+                children=[
+                    dmc.Button(
+                        "Editar",
+                        id={"type": "btn-editar-portal", "index": portal["id"]},
+                        variant="outline",
+                        color="teal",
+                        size="xs",
+                    ),
+                    dmc.Button(
+                        "Excluir",
+                        id={"type": "btn-excluir-portal", "index": portal["id"]},
+                        variant="outline",
+                        color="red",
+                        size="xs",
+                    ),
+                ],
+            ),
         ],
-        style={**CARD_STYLE, "marginBottom": "12px"},
     )
 
 
 def layout() -> html.Div:
     return html.Div([
         dcc.Store(id="portais-trigger", data=0),
-        html.H2("Portais", style={
-            "color": COR_TEXTO, "fontWeight": 600, "marginBottom": "24px",
-        }),
-        dbc.Row([
-            dbc.Col(html.Div(id="portais-lista"), width=6),
-            dbc.Col(html.Div(id="portais-form-wrapper"), width=6),
-        ], className="g-4"),
+        dmc.Title("Portais", order=2, mb="lg"),
+        dmc.Grid(
+            gutter="lg",
+            children=[
+                dmc.GridCol(html.Div(id="portais-lista"), span=6),
+                dmc.GridCol(html.Div(id="portais-form-wrapper"), span=6),
+            ],
+        ),
     ])
 
 
@@ -92,10 +65,7 @@ def layout() -> html.Div:
 def render_lista(_trigger):
     portais = listar_portais()
     if not portais:
-        return html.P(
-            "Nenhum portal cadastrado.",
-            style={"color": COR_TEXTO_SEC},
-        )
+        return dmc.Text("Nenhum portal cadastrado.", c="dimmed")
     return [_portal_card(p) for p in portais]
 
 
@@ -163,7 +133,7 @@ def excluir_portal_callback(n_clicks_list, trigger):
     State("form-portal-nome", "value"),
     State("form-portal-url", "value"),
     State("form-portal-login", "value"),
-    State("form-portal-data", "date"),
+    State("form-portal-data", "value"),
     State("form-portal-notas", "value"),
     State("editing_portal_id", "data"),
     State("portais-trigger", "data"),

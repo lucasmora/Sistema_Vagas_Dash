@@ -1,18 +1,19 @@
-# Paleta Dark Mode (WCAG AA-friendly)
+# Design system adaptado ao Dash Mantine Components (dark)
 
-COR_FUNDO = "#060B17"        # Background principal (navy profundo)
-COR_SUPERFICIE = "#101728"   # Superfícies (cards, sidebar)
-COR_ELEVADO = "#17233C"      # Elevado (hover, pipeline bg, dropdowns)
-COR_BORDA_CLARA = "#22324D"  # Bordas sutis
-COR_BORDA = "#2D4470"        # Bordas fortes (inputs)
-COR_TEXTO = "#F5F7FF"        # Texto primário (alto contraste)
-COR_TEXTO_SEC = "#D6E0F2"    # Texto secundário
-COR_TEXTO_MUTED = "#99A8C2"  # Texto muted (contraste adequado)
-COR_PRIMARY = "#2ED3C8"      # Teal mais vivo para contraste em dark
-COR_DESTAQUE = "#8B7CFF"     # Roxo destaque
-COR_SUCESSO = "#2FCB70"      # Verde
-COR_ALERTA = "#F5A524"       # Âmbar
-COR_PERIGO = "#FF5F6D"       # Vermelho
+# Tokens de cor mapeados para as CSS variables do Mantine dark theme
+COR_FUNDO = "var(--mantine-color-body)"
+COR_SUPERFICIE = "var(--mantine-color-dark-6)"
+COR_ELEVADO = "var(--mantine-color-dark-5)"
+COR_BORDA_CLARA = "var(--mantine-color-dark-4)"
+COR_BORDA = "var(--mantine-color-dark-3)"
+COR_TEXTO = "var(--mantine-color-text)"
+COR_TEXTO_SEC = "var(--mantine-color-dimmed)"
+COR_TEXTO_MUTED = "var(--mantine-color-dimmed)"
+COR_PRIMARY = "var(--mantine-primary-color-filled)"
+COR_DESTAQUE = "var(--mantine-color-violet-5)"
+COR_SUCESSO = "var(--mantine-color-teal-5)"
+COR_ALERTA = "var(--mantine-color-yellow-6)"
+COR_PERIGO = "var(--mantine-color-red-6)"
 
 STATUS_CORES = {
     "Interessado": "#A7A9CD",
@@ -33,8 +34,7 @@ PIPELINE_ORDEM = [
     "Aceito",
 ]
 
-# Sombras escuras (mais intensas em dark mode)
-SOMBRA_NIVEL_1 = "0 1px 3px rgba(2,8,23,0.45), 0 1px 2px rgba(2,8,23,0.3)"
+SOMBRA_NIVEL_1 = "var(--mantine-shadow-sm)"
 
 # Espaçamento Airy
 ESP_XS = "4px"
@@ -43,12 +43,10 @@ ESP_MD = "16px"
 ESP_LG = "24px"
 ESP_XL = "32px"
 
-# Espaçamento específico para inputs
 INPUT_PADDING_Y = "10px"
 INPUT_PADDING_X = "14px"
 
-# Raio de borda
-RAIO_BORDA = "8px"
+RAIO_BORDA = "var(--mantine-radius-md)"
 RAIO_BORDA_PILL = "9999px"
 
 CARD_STYLE = {
@@ -57,7 +55,6 @@ CARD_STYLE = {
     "borderRadius": RAIO_BORDA,
     "boxShadow": SOMBRA_NIVEL_1,
     "padding": f"{ESP_LG} {ESP_XL}",
-    "transition": "box-shadow 0.2s ease, border-color 0.2s ease",
 }
 
 INPUT_STYLE = {
@@ -77,8 +74,9 @@ SELECT_STYLE = {
     "appearance": "auto",
 }
 
-SIDEBAR_WIDTH = 2
+SIDEBAR_WIDTH = 260
 CONTENT_PADDING = "32px 40px"
+
 
 def badge_style(status: str) -> dict:
     cor = STATUS_CORES.get(status, COR_BORDA)
