@@ -352,6 +352,10 @@ def editar_vaga(n_clicks_list, vaga_id):
     if not ctx.triggered:
         raise PreventUpdate
     
+    clicked_n = ctx.triggered[0]["value"]
+    if not clicked_n:
+        raise PreventUpdate
+    
     n_clicks_list = n_clicks_list or []
     new_clicks = [None] * len(n_clicks_list)
     
@@ -376,7 +380,13 @@ def excluir_vaga_detalhe(n_clicks_list, vaga_id):
     if not ctx.triggered:
         raise PreventUpdate
     
+    clicked_n = ctx.triggered[0]["value"]
+    if not clicked_n:
+        raise PreventUpdate
+    
     if not vaga_id:
+        raise PreventUpdate
+    if ctx.triggered_id.get("index") != vaga_id:
         raise PreventUpdate
     
     try:

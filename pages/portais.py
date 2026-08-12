@@ -119,6 +119,9 @@ def editar_portal(n_clicks_list):
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
+    clicked_n = ctx.triggered[0]["value"]
+    if not clicked_n:
+        raise PreventUpdate
     return ctx.triggered_id["index"]
 
 
