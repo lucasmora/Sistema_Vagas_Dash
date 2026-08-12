@@ -108,6 +108,7 @@ def vaga_card(vaga: dict, portal_nome: str = ""):
                             variant="outline",
                             radius="xl",
                             size="sm",
+                            style={"cursor": "pointer"},
                         ),
                         href=f"/vagas/{vaga_id}",
                         style={"textDecoration": "none"},

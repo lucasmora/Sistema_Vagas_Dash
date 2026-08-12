@@ -203,10 +203,10 @@ def _condicional_salario(tipo: str, autofill_data):
 def form_nova_vaga():
     portais = listar_portais()
     portal_opcoes = [
-        {"label": p["nome"], "value": p["id"]} for p in portais
+        {"label": p["nome"], "value": str(p["id"])} for p in portais
     ]
     tags_disponiveis = listar_tags()
-    tag_opcoes = [{"label": t["nome"], "value": t["id"]} for t in tags_disponiveis]
+    tag_opcoes = [{"label": t["nome"], "value": str(t["id"])} for t in tags_disponiveis]
 
     return dmc.Paper(
         p="xl",
@@ -317,10 +317,10 @@ def form_nova_vaga():
 def form_editar_vaga(vaga: dict):
     portais = listar_portais()
     portal_opcoes = [
-        {"label": p["nome"], "value": p["id"]} for p in portais
+        {"label": p["nome"], "value": str(p["id"])} for p in portais
     ]
     tags_disponiveis = listar_tags()
-    tag_opcoes = [{"label": t["nome"], "value": t["id"]} for t in tags_disponiveis]
+    tag_opcoes = [{"label": t["nome"], "value": str(t["id"])} for t in tags_disponiveis]
 
     return dmc.Paper(
         p="xl",
@@ -378,7 +378,7 @@ def form_editar_vaga(vaga: dict):
                         data=portal_opcoes,
                         placeholder="Selecione...",
                         clearable=True,
-                        value=vaga.get("portal_id") or None,
+                        value=str(vaga["portal_id"]) if vaga.get("portal_id") else None,
                     )),
                     _col(3, _date_input("edit-vaga-data-encontrada",
                                         value=vaga.get("data_encontrada") or None)),
@@ -501,25 +501,50 @@ def form_portal(portal: dict = None):
     )
 
 
-def form_tag():
+def form_tag(nome: str = "", tag_id=None):
+    editando = tag_id is not None
     return dmc.Paper(
         p="xl",
         radius="md",
         shadow="sm",
         withBorder=True,
         children=[
-            dmc.Title("Nova Tag", order=4, mb="lg"),
-            dmc.TextInput(
-                id="form-tag-nome",
-                label="Nome",
-                placeholder="Ex: Python",
+            dmc.Title(
+                "Editar Tag" if editando else "Nova Tag",
+                order=4,
+                mb="lg",
             ),
-            dmc.Button(
-                "Adicionar",
-                id="btn-add-tag",
-                color="teal",
-                variant="filled",
+            dmc.Stack(
+                gap="md",
+                children=[
+                    dmc.TextInput(
+                        id="form-tag-nome",
+                        label="Nome",
+                        placeholder="Ex: Python",
+                        value=nome,
+                    ),
+                    dmc.Text(
+                        "As tags são salvas em letras minúsculas.",
+                        size="xs",
+                        c="dimmed",
+                    ),
+                ],
+            ),
+            dmc.Group(
                 mt="lg",
+                children=[
+                    dmc.Button(
+                        "Atualizar" if editando else "Adicionar",
+                        id="btn-add-tag",
+                        color="teal",
+                        variant="filled",
+                    ),
+                    dmc.Button(
+                        "Cancelar",
+                        id="btn-cancelar-edicao-tag",
+                        variant="default",
+                    ) if editando else None,
+                ],
             ),
         ],
     )

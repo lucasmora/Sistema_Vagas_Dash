@@ -1,4 +1,6 @@
+import sqlite3
 from typing import Optional
+
 from database import get_db, row_to_dict
 
 
@@ -227,6 +229,9 @@ def vagas_por_portal() -> list[dict]:
 # ─── Tags ──────────────────────────────────────────────────────────
 
 def criar_tag(nome: str) -> int | None:
+    nome = (nome or "").strip().lower()
+    if not nome:
+        return None
     with get_db() as conn:
         cur = conn.execute(
             "INSERT OR IGNORE INTO tags (nome) VALUES (?)", (nome,)
@@ -237,6 +242,28 @@ def criar_tag(nome: str) -> int | None:
             "SELECT id FROM tags WHERE nome = ?", (nome,)
         ).fetchone()
         return row["id"]
+
+
+def get_tag(tag_id: int) -> Optional[dict]:
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT * FROM tags WHERE id = ?", (tag_id,)
+        ).fetchone()
+        return row_to_dict(row) if row else None
+
+
+def renomear_tag(tag_id: int, novo_nome: str) -> bool:
+    novo_nome = (novo_nome or "").strip().lower()
+    if not novo_nome:
+        return False
+    try:
+        with get_db() as conn:
+            cur = conn.execute(
+                "UPDATE tags SET nome = ? WHERE id = ?", (novo_nome, tag_id)
+            )
+            return cur.rowcount > 0
+    except sqlite3.IntegrityError:
+        return False
 
 
 def listar_tags() -> list[dict]:

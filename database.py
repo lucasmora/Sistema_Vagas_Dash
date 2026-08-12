@@ -110,6 +110,29 @@ def migrar_schema() -> None:
         except sqlite3.OperationalError:
             pass  # coluna já existe
 
+    _normalizar_tags_existentes()
+
+
+def _normalizar_tags_existentes() -> None:
+    """Normaliza tags para minúsculas, mesclando duplicatas caixa-insensíveis."""
+    with get_db() as conn:
+        manter: dict[str, int] = {}
+        for row in conn.execute("SELECT id, trim(nome) AS nome FROM tags"):
+            nome = row["nome"].lower()
+            if nome in manter:
+                original = manter[nome]
+                conn.execute(
+                    "INSERT OR IGNORE INTO vaga_tags (vaga_id, tag_id)"
+                    " SELECT vaga_id, ? FROM vaga_tags WHERE tag_id = ?",
+                    (original, row["id"]),
+                )
+                conn.execute("DELETE FROM vaga_tags WHERE tag_id = ?", (row["id"],))
+                conn.execute("DELETE FROM tags WHERE id = ?", (row["id"],))
+            else:
+                manter[nome] = row["id"]
+
+        conn.execute("UPDATE tags SET nome = lower(trim(nome))")
+
 
 def row_to_dict(row: sqlite3.Row) -> dict:
     return dict(row)

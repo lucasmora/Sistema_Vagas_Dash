@@ -206,4 +206,4 @@ def add_tag_na_vaga(n_clicks, nome):
     if not nome:
         raise PreventUpdate
     criar_tag(nome)
-    return [{"label": t["nome"], "value": t["id"]} for t in listar_tags()]
+    return [{"label": t["nome"], "value": str(t["id"])} for t in listar_tags()]

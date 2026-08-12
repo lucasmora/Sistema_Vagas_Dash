@@ -31,9 +31,13 @@ def layout() -> html.Div:
                             dmc.CheckboxGroup(
                                 id="filtro-status",
                                 label="Status",
+                                labelProps={"style": {"marginBottom": "12px"}},
                                 value=[],
                                 children=[
-                                    dmc.Checkbox(label=s, value=s)
+                                    html.Div(
+                                        dmc.Checkbox(label=s, value=s),
+                                        style={"marginBottom": "12px"},
+                                    )
                                     for s in statuses
                                 ],
                             ),
@@ -41,6 +45,7 @@ def layout() -> html.Div:
                             dmc.Select(
                                 id="filtro-portal",
                                 label="Portal",
+                                labelProps={"style": {"marginBottom": "12px"}},
                                 data=[{"label": "Todos", "value": ""}],
                                 allowDeselect=False,
                                 value="",
@@ -49,6 +54,7 @@ def layout() -> html.Div:
                             dmc.Select(
                                 id="filtro-tag",
                                 label="Tag",
+                                labelProps={"style": {"marginBottom": "12px"}},
                                 data=[{"label": "Todas", "value": ""}],
                                 allowDeselect=False,
                                 value="",
@@ -57,6 +63,7 @@ def layout() -> html.Div:
                             dmc.TextInput(
                                 id="filtro-busca",
                                 label="Busca",
+                                labelProps={"style": {"marginBottom": "12px"}},
                                 placeholder="Busca por nome, empresa...",
                             ),
                         ],

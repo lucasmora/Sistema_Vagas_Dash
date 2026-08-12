@@ -221,7 +221,7 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                         ], style={"marginBottom": "8px"})
                                         for h in vaga.get("_historico", [])
                                     ],
-                                    p="sm",
+                                    style={"padding": "16px"},
                                 ),
                             ),
                         ],
