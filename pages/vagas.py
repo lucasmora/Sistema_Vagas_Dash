@@ -142,4 +142,4 @@ def render_lista_vagas(_trigger, status_filtro, portal_filtro, tag_filtro, busca
             "Nenhuma vaga encontrada.",
             style={"color": COR_TEXTO_SEC},
         )
-    return [_vaga_item(v) for v in vagas]
+    return [html.Div(_vaga_item(v), style={"marginBottom": "20px"}) for v in vagas]

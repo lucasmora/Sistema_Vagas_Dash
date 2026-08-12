@@ -1,7 +1,8 @@
 from dash import html, dcc
 from styles import (
     COR_TEXTO, COR_TEXTO_SEC, COR_TEXTO_MUTED,
-    COR_PRIMARY, CARD_STYLE, badge_style, tag_style,
+    COR_SUCESSO, COR_PRIMARY, CARD_STYLE, badge_style, tag_style,
+    RAIO_BORDA_PILL, ESP_XS, ESP_MD,
 )
 
 
@@ -118,8 +119,11 @@ def vaga_card(vaga: dict, portal_nome: str = "") -> html.Div:
                         html.Span(
                             "Detalhes →",
                             style={
-                                "color": COR_PRIMARY, "fontSize": "0.875rem",
+                                "color": COR_SUCESSO, "fontSize": "0.8125rem",
                                 "cursor": "pointer", "fontWeight": 500,
+                                "border": f"1px solid {COR_SUCESSO}",
+                                "borderRadius": RAIO_BORDA_PILL,
+                                "padding": f"{ESP_XS} {ESP_MD}",
                             },
                         ),
                         href=f"/vagas/{vaga_id}",

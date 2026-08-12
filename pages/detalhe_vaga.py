@@ -371,6 +371,7 @@ def editar_vaga(n_clicks_list, vaga_id):
 @callback(
     Output("edit-mode-placeholder", "children", allow_duplicate=True),
     Output("notification", "data", allow_duplicate=True),
+    Output("url", "pathname", allow_duplicate=True),
     Input({"type": "btn-excluir-vaga-detalhe", "index": ALL}, "n_clicks"),
     State("vaga-id-store", "data"),
     prevent_initial_call=True,
@@ -391,9 +392,9 @@ def excluir_vaga_detalhe(n_clicks_list, vaga_id):
     
     try:
         excluir_vaga(vaga_id)
-        return None, {"message": "Vaga excluída!", "type": "success"}
+        return None, {"message": "Vaga excluída!", "type": "success"}, "/vagas"
     except Exception as e:
-        return None, {"message": f"Erro ao excluir vaga: {str(e)}", "type": "danger"}
+        return None, {"message": f"Erro ao excluir vaga: {str(e)}", "type": "danger"}, no_update
 
 
 @callback(
