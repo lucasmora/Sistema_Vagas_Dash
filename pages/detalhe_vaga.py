@@ -4,7 +4,7 @@ from dash.exceptions import PreventUpdate
 
 from db.models import get_vaga, listar_historico, atualizar_vaga, excluir_vaga, get_tags_da_vaga
 from components.pipeline import pipeline_view
-from components.forms import form_editar_vaga
+from components.vaga_form import form_vaga
 from styles import (
     COR_TEXTO, COR_DESTAQUE,
     COLUNA_ESTILO,
@@ -41,6 +41,10 @@ def layout() -> html.Div:
     return html.Div([
         dcc.Store(id="vaga-id-store", data=None),
         dcc.Store(id="detalhe-trigger", data=0),
+        dcc.Store(id="vaga-form-mode", data=None),
+        dcc.Store(id="autofill-salary", data=None),
+        dcc.Store(id="autofill-source", data=None),
+        dcc.Store(id="form-saved-event", data=0),
         html.Div(id="page-content-placeholder"),
     ])
 
@@ -283,6 +287,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
 @callback(
     Output({"type": "btn-editar-vaga", "index": ALL}, "n_clicks"),
     Output("edit-mode-placeholder", "children"),
+    Output("autofill-salary", "data", allow_duplicate=True),
+    Output("vaga-form-mode", "data", allow_duplicate=True),
     Input({"type": "btn-editar-vaga", "index": ALL}, "n_clicks"),
     State("vaga-id-store", "data"),
     prevent_initial_call=True,
@@ -303,9 +309,13 @@ def editar_vaga(n_clicks_list, vaga_id):
     if not vaga:
         return new_clicks, html.Div([
             dmc.Text("Vaga não encontrada", c="red"),
-        ])
+        ]), no_update, no_update
 
-    return new_clicks, form_editar_vaga(vaga)
+    salario_store = {
+        "salario": vaga.get("salario") or None,
+        "salario_max": vaga.get("salario_max") or None,
+    }
+    return new_clicks, form_vaga(vaga), salario_store, {"modo": "editar", "id": vaga_id}
 
 
 @callback(
@@ -380,65 +390,28 @@ def atualizar_status(n_clicks, novo_status, vaga_id):
 
 
 @callback(
-    Output("notification", "data", allow_duplicate=True),
-    Input("btn-salvar-edicao", "n_clicks"),
-    State("edit-vaga-nome", "value"),
-    State("edit-vaga-empresa", "value"),
-    State("edit-vaga-link", "value"),
-    State("edit-vaga-salario", "value"),
-    State("edit-vaga-salario-max", "value"),
-    State("edit-vaga-modalidade", "value"),
-    State("edit-vaga-portal", "value"),
-    State("edit-vaga-data-encontrada", "value"),
-    State("edit-vaga-data-envio", "value"),
-    State("edit-vaga-interesse", "value"),
-    State("edit-vaga-aderencia", "value"),
-    State("edit-vaga-tags", "value"),
-    State("edit-vaga-descricao", "value"),
-    State("edit-vaga-notas", "value"),
-    State("vaga-id-store", "data"),
+    Output("edit-mode-placeholder", "children", allow_duplicate=True),
+    Input("btn-cancelar-edicao", "n_clicks"),
     prevent_initial_call=True,
 )
-def salvar_edicao_vaga(
-    n_clicks, nome, empresa, link, salario, salario_max, modalidade,
-    portal, data_encontrada, data_envio, interesse, aderencia, tag_ids,
-    descricao, notas, vaga_id
-):
+def cancelar_edicao(n_clicks):
+    """Remove o formulário de edição, mantendo a exibição detalhada"""
     if not n_clicks:
         raise PreventUpdate
+    return None
 
-    nome = (nome or "").strip()
-    if not nome:
-        return {"message": "Nome é obrigatório", "type": "warning"}
 
-    tag_ids = tag_ids or []
-    vaga_atual = get_vaga(vaga_id)
-    if not vaga_atual:
-        return {"message": "Vaga não encontrada", "type": "danger"}
-    try:
-        atualizar_vaga(
-            vaga_id,
-            nome=nome,
-            empresa=empresa or "",
-            link=link or "",
-            salario=float(salario) if salario else None,
-            salario_max=float(salario_max) if salario_max else None,
-            modalidade=modalidade or "",
-            descricao=descricao or "",
-            interesse=int(interesse) if interesse else 3,
-            aderencia=int(aderencia) if aderencia else 3,
-            status=vaga_atual.get("status") or "Interessado",
-            portal_id=int(portal) if portal and portal != "" else None,
-            data_encontrada=data_encontrada or "",
-            data_envio=data_envio or "",
-            notas=notas or "",
-            tag_ids=[int(t) for t in tag_ids] if tag_ids else None,
-            data_publicacao=vaga_atual.get("data_publicacao") or "",
-            fonte_id=vaga_atual.get("fonte_id") or "",
-        )
-        return {"message": "Vaga atualizada com sucesso!", "type": "success"}
-    except Exception as e:
-        return {"message": f"Erro ao atualizar vaga: {str(e)}", "type": "danger"}
+@callback(
+    Output("detalhe-trigger", "data", allow_duplicate=True),
+    Input("form-saved-event", "data"),
+    State("detalhe-trigger", "data"),
+    prevent_initial_call=True,
+)
+def refresh_apos_edicao(evento, trigger):
+    """Recarrega os detalhes após salvar uma edição de vaga."""
+    if not evento:
+        raise PreventUpdate
+    return (trigger or 0) + 1
 
 
 @callback(

@@ -1,19 +1,8 @@
-from dash import html, dcc, callback, Input, Output, State
+from datetime import datetime
+from dash import html
 import dash_mantine_components as dmc
 
 from styles import COR_TEXTO_SEC
-from db.models import listar_portais, listar_tags
-
-TIPO_SALARIO_OPCOES = [
-    {"label": "Valor fixo", "value": "fixo"},
-    {"label": "Faixa salarial", "value": "faixa"},
-    {"label": "Não informado", "value": "nai"},
-]
-
-MODALIDADE_OPCOES = [
-    {"label": m, "value": m}
-    for m in ["Remoto", "Presencial", "Híbrido"]
-]
 
 
 def _text_input(ide: str, placeholder: str = "", value: str = ""):
@@ -34,18 +23,43 @@ def _number_input(ide: str, placeholder: str = "", value=None):
     )
 
 
+def iso_para_br(value):
+    """Converte data ISO (YYYY-MM-DD) ou objeto date para DD/MM/YYYY.
+    Se o valor já estiver em outro formato, devolve-o intacto."""
+    if not value:
+        return None
+    texto = str(value).strip()
+    if len(texto) >= 10:
+        try:
+            return datetime.strptime(texto[:10], "%Y-%m-%d").strftime("%d/%m/%Y")
+        except ValueError:
+            pass
+    return texto
+
+
+def br_para_iso(value):
+    """Converte data DD/MM/YYYY para ISO (YYYY-MM-DD).
+    Se o valor já estiver em outro formato, devolve-o intacto."""
+    if not value:
+        return ""
+    texto = str(value).strip()
+    if len(texto) >= 10:
+        try:
+            return datetime.strptime(texto[:10], "%d/%m/%Y").strftime("%Y-%m-%d")
+        except ValueError:
+            pass
+    return texto
+
+
 def _date_input(ide: str, label: str = None, value=None):
-    children = []
-    if label:
-        children.append(dmc.Text(label, size="sm", c="dimmed", mb=4))
-    children.append(dmc.DateInput(
+    return dmc.DateInput(
         id=ide,
-        value=value or None,
-        valueFormat="YYYY-MM-DD",
+        label=label,
+        value=iso_para_br(value) if value else None,
+        valueFormat="DD/MM/YYYY",
         clearable=True,
         placeholder="DD/MM/AAAA",
-    ))
-    return html.Div(children)
+    )
 
 
 def _select(ide: str, opcoes: list, placeholder: str = "Selecione...",
@@ -73,7 +87,7 @@ def _dropdown_multi(ide: str, opcoes: list, placeholder: str = "Selecione...",
 
 def _slider_campo(label: str, ide: str, value):
     return html.Div([
-        dmc.Text(label, size="sm", c="dimmed", mb=4),
+        dmc.Text(label, size="sm", c="dimmed", mb=4, fw=600),
         dmc.Slider(
             id=ide,
             min=1,
@@ -129,310 +143,6 @@ def modal_autofill_infojobs():
                         id="btn-autofill-fetch",
                         color="teal",
                         variant="filled",
-                    ),
-                ],
-            ),
-        ],
-    )
-
-
-def salario_inputs() -> html.Div:
-    return html.Div(
-        id="salario-area",
-        children=[
-            dmc.RadioGroup(
-                id="salario-tipo",
-                label="Tipo de Salário",
-                value="nai",
-                children=dmc.Group(
-                    gap="lg",
-                    mt="xs",
-                    children=[
-                        dmc.Radio(label="Valor fixo", value="fixo"),
-                        dmc.Radio(label="Faixa salarial", value="faixa"),
-                        dmc.Radio(label="Não informado", value="nai"),
-                    ],
-                ),
-            ),
-            html.Div(id="salario-valores", children=[
-                dmc.NumberInput(id="salario", label="Salário (R$)",
-                                style={"display": "none"}),
-                dmc.NumberInput(id="salario-max", label="Salário Máximo (R$)",
-                                style={"display": "none"}),
-            ]),
-        ],
-        style={"marginBottom": "16px"},
-    )
-
-
-@callback(
-    Output("salario-valores", "children", allow_duplicate=True),
-    Input("salario-tipo", "value"),
-    State("autofill-salary", "data"),
-    prevent_initial_call=True,
-)
-def _condicional_salario(tipo: str, autofill_data):
-    """Atualiza visibilidade e valores dos inputs de salário"""
-    val = None
-    val_max = None
-    if autofill_data and isinstance(autofill_data, dict):
-        val = autofill_data.get("salario")
-        val_max = autofill_data.get("salario_max")
-
-    if tipo == "nai":
-        return [
-            dmc.NumberInput(id="salario", label="Salário (R$)",
-                            style={"display": "none"}),
-            dmc.NumberInput(id="salario-max", label="Salário Máximo (R$)",
-                            style={"display": "none"}),
-        ]
-    if tipo == "fixo":
-        return [
-            dmc.NumberInput(id="salario", label="Salário (R$)",
-                            placeholder="Ex: 12000",
-                            value=val if val is not None else None),
-            dmc.NumberInput(id="salario-max", label="Salário Máximo (R$)",
-                            style={"display": "none"}),
-        ]
-    return [
-        dmc.NumberInput(id="salario", label="Salário Mínimo (R$)",
-                        placeholder="Ex: 2000",
-                        value=val if val is not None else None),
-        dmc.NumberInput(id="salario-max", label="Salário Máximo (R$)",
-                        placeholder="Ex: 20000",
-                        value=val_max if val_max is not None else None),
-    ]
-
-
-def form_nova_vaga():
-    portais = listar_portais()
-    portal_opcoes = [
-        {"label": p["nome"], "value": str(p["id"])} for p in portais
-    ]
-    tags_disponiveis = listar_tags()
-    tag_opcoes = [{"label": t["nome"], "value": str(t["id"])} for t in tags_disponiveis]
-
-    return dmc.Paper(
-        p="xl",
-        radius="md",
-        shadow="sm",
-        withBorder=True,
-        style={"maxWidth": 800, "margin": "0 auto"},
-        children=[
-            dmc.Title("Nova Vaga", order=3, mb="lg"),
-            dcc.Store(id="autofill-salary", data=None),
-            dmc.Grid(
-                gutter="md",
-                children=[
-                    _col(12, dmc.TextInput(
-                        id="nova-vaga-nome",
-                        label="Nome",
-                        placeholder="Ex: Gerente Financeiro - Stone",
-                        withAsterisk=True,
-                    )),
-                    _col(6, dmc.TextInput(
-                        id="nova-vaga-empresa",
-                        label="Empresa",
-                        placeholder="Ex: Stone Pagamentos",
-                    )),
-                    _col(6, dmc.TextInput(
-                        id="nova-vaga-link",
-                        label="Link",
-                        placeholder="URL da vaga",
-                    )),
-                    _col(4, dmc.Select(
-                        id="nova-vaga-modalidade",
-                        label="Modalidade",
-                        data=MODALIDADE_OPCOES,
-                        placeholder="Selecione...",
-                        clearable=True,
-                    )),
-                    _col(8, salario_inputs()),
-                    _col(6, dmc.Select(
-                        id="nova-vaga-portal",
-                        label="Portal",
-                        data=portal_opcoes,
-                        placeholder="Selecione...",
-                        clearable=True,
-                    )),
-                    _col(3, _date_input("nova-vaga-data-publicacao", label="Data de Publicação")),
-                    _col(3, _date_input("nova-vaga-data-encontrada", label="Data Encontrada")),
-                    _col(3, _date_input("nova-vaga-data-envio", label="Data de Envio")),
-                    _col(6, _slider_campo("Interesse", "nova-vaga-interesse", 3)),
-                    _col(6, _slider_campo("Aderência", "nova-vaga-aderencia", 3)),
-                    _col(12, dmc.MultiSelect(
-                        id="nova-vaga-tags",
-                        label="Tags",
-                        data=tag_opcoes,
-                        placeholder="Selecione...",
-                        clearable=True,
-                        hidePickedOptions=True,
-                    )),
-                    _col(12, dmc.Group(
-                        gap="xs",
-                        align="flex-end",
-                        children=[
-                            dmc.TextInput(
-                                id="nova-vaga-nova-tag",
-                                label="Nova Tag",
-                                placeholder="Nome da tag",
-                                style={"flex": 1},
-                            ),
-                            dmc.Button(
-                                "Adicionar",
-                                id="btn-add-tag-vaga",
-                                variant="light",
-                                color="teal",
-                            ),
-                        ],
-                    )),
-                    _col(12, dmc.Textarea(
-                        id="nova-vaga-descricao",
-                        label="Descrição",
-                        placeholder="Texto completo do anúncio...",
-                        autosize=True,
-                        minRows=6,
-                        resize="vertical",
-                    )),
-                    _col(12, dmc.Textarea(
-                        id="nova-vaga-notas",
-                        label="Notas",
-                        placeholder="Anotações pessoais...",
-                        autosize=True,
-                        minRows=4,
-                        resize="vertical",
-                    )),
-                ],
-            ),
-            dmc.Divider(my="xl"),
-            dmc.Button(
-                "Salvar Vaga",
-                id="btn-salvar-vaga",
-                color="teal",
-                variant="filled",
-                size="md",
-                fullWidth=True,
-            ),
-            modal_autofill_infojobs(),
-        ],
-    )
-
-
-def form_editar_vaga(vaga: dict):
-    portais = listar_portais()
-    portal_opcoes = [
-        {"label": p["nome"], "value": str(p["id"])} for p in portais
-    ]
-    tags_disponiveis = listar_tags()
-    tag_opcoes = [{"label": t["nome"], "value": str(t["id"])} for t in tags_disponiveis]
-
-    return dmc.Paper(
-        p="xl",
-        radius="md",
-        shadow="sm",
-        withBorder=True,
-        children=[
-            dmc.Title(f"Editar: {vaga.get('nome', '')}", order=4, mb="lg"),
-            dmc.Grid(
-                gutter="md",
-                children=[
-                    _col(12, dmc.TextInput(
-                        id="edit-vaga-nome",
-                        label="Nome",
-                        value=vaga.get("nome", ""),
-                        withAsterisk=True,
-                    )),
-                    _col(6, dmc.TextInput(
-                        id="edit-vaga-empresa",
-                        label="Empresa",
-                        value=vaga.get("empresa") or "",
-                    )),
-                    _col(6, dmc.TextInput(
-                        id="edit-vaga-link",
-                        label="Link",
-                        value=vaga.get("link") or "",
-                    )),
-                    _col(4, dmc.Select(
-                        id="edit-vaga-modalidade",
-                        label="Modalidade",
-                        data=MODALIDADE_OPCOES,
-                        placeholder="Selecione...",
-                        clearable=True,
-                        value=vaga.get("modalidade") or None,
-                    )),
-                    _col(4, dmc.NumberInput(
-                        id="edit-vaga-salario",
-                        label="Salário (R$)",
-                        placeholder="Ex: 12000",
-                        value=vaga.get("salario") or None,
-                        min=0,
-                        allowNegative=False,
-                    )),
-                    _col(4, dmc.NumberInput(
-                        id="edit-vaga-salario-max",
-                        label="Salário Máximo (R$)",
-                        placeholder="Ex: 15000",
-                        value=vaga.get("salario_max") or None,
-                        min=0,
-                        allowNegative=False,
-                    )),
-                    _col(6, dmc.Select(
-                        id="edit-vaga-portal",
-                        label="Portal",
-                        data=portal_opcoes,
-                        placeholder="Selecione...",
-                        clearable=True,
-                        value=str(vaga["portal_id"]) if vaga.get("portal_id") else None,
-                    )),
-                    _col(3, _date_input("edit-vaga-data-encontrada",
-                                        label="Data Encontrada",
-                                        value=vaga.get("data_encontrada") or None)),
-                    _col(3, _date_input("edit-vaga-data-envio",
-                                        label="Data de Envio",
-                                        value=vaga.get("data_envio") or None)),
-                    _col(6, _slider_campo("Interesse", "edit-vaga-interesse",
-                                          vaga.get("interesse") or 3)),
-                    _col(6, _slider_campo("Aderência", "edit-vaga-aderencia",
-                                          vaga.get("aderencia") or 3)),
-                    _col(12, dmc.MultiSelect(
-                        id="edit-vaga-tags",
-                        label="Tags",
-                        data=tag_opcoes,
-                        placeholder="Selecione...",
-                        clearable=True,
-                        hidePickedOptions=True,
-                    )),
-                    _col(12, dmc.Textarea(
-                        id="edit-vaga-descricao",
-                        label="Descrição",
-                        value=vaga.get("descricao") or "",
-                        autosize=True,
-                        minRows=6,
-                        resize="vertical",
-                    )),
-                    _col(12, dmc.Textarea(
-                        id="edit-vaga-notas",
-                        label="Notas",
-                        value=vaga.get("notas") or "",
-                        autosize=True,
-                        minRows=4,
-                        resize="vertical",
-                    )),
-                ],
-            ),
-            dmc.Group(
-                mt="xl",
-                children=[
-                    dmc.Button(
-                        "Salvar alterações",
-                        id="btn-salvar-edicao",
-                        color="teal",
-                        variant="filled",
-                    ),
-                    dmc.Button(
-                        "Cancelar",
-                        id="btn-cancelar-edicao",
-                        variant="default",
                     ),
                 ],
             ),
