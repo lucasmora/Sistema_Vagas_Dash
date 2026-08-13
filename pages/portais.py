@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State, ALL, callback_contex
 import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
-from db.models import listar_portais, get_portal, criar_portal, atualizar_portal, excluir_portal
+from db.models import listar_portais, get_portal, criar_portal, atualizar_portal, excluir_portal, portal_existe
 from components.forms import form_portal
 
 
@@ -146,6 +146,10 @@ def salvar_portal(n_clicks, nome, url, login, data, notas, edit_id, trigger):
     if not nome:
         return no_update, no_update, {
             "message": "Nome é obrigatório", "type": "warning",
+        }
+    if portal_existe(nome, excluir_id=edit_id):
+        return no_update, no_update, {
+            "message": "Já existe um portal com esse nome", "type": "danger",
         }
     if edit_id:
         atualizar_portal(edit_id, nome, url or "", login or "", notas or "",

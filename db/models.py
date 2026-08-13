@@ -33,6 +33,24 @@ def get_portal(portal_id: int) -> Optional[dict]:
         return row_to_dict(row) if row else None
 
 
+def portal_existe(nome: str, excluir_id: Optional[int] = None) -> bool:
+    """True se já existe um portal com esse nome (ignorando `excluir_id`)."""
+    nome = (nome or "").strip()
+    if not nome:
+        return False
+    with get_db() as conn:
+        if excluir_id:
+            row = conn.execute(
+                "SELECT id FROM portais WHERE nome = ? AND id != ?",
+                (nome, excluir_id),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT id FROM portais WHERE nome = ?", (nome,)
+            ).fetchone()
+        return row is not None
+
+
 def atualizar_portal(portal_id: int, nome: str, url_base: str = "",
                      tipo_login: str = "", notas: str = "",
                      ultima_atualizacao: str = "") -> None:
@@ -94,7 +112,10 @@ def criar_vaga(
 def get_vaga(vaga_id: int) -> Optional[dict]:
     with get_db() as conn:
         row = conn.execute(
-            "SELECT * FROM vagas WHERE id = ?", (vaga_id,)
+            """SELECT v.*, COALESCE(p.nome, 'Sem portal') AS portal_nome
+               FROM vagas v LEFT JOIN portais p ON v.portal_id = p.id
+               WHERE v.id = ?""",
+            (vaga_id,),
         ).fetchone()
         return row_to_dict(row) if row else None
 
@@ -242,6 +263,18 @@ def criar_tag(nome: str) -> int | None:
             "SELECT id FROM tags WHERE nome = ?", (nome,)
         ).fetchone()
         return row["id"]
+
+
+def tag_existe(nome: str) -> bool:
+    """True se já existe uma tag com esse nome."""
+    nome = (nome or "").strip().lower()
+    if not nome:
+        return False
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT id FROM tags WHERE nome = ?", (nome,)
+        ).fetchone()
+        return row is not None
 
 
 def get_tag(tag_id: int) -> Optional[dict]:

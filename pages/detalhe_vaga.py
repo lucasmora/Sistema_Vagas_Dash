@@ -7,14 +7,10 @@ from components.pipeline import pipeline_view
 from components.vaga_form import form_vaga
 from styles import (
     COR_TEXTO, COR_DESTAQUE,
-    COLUNA_ESTILO,
+    COLUNA_ESTILO, STATUS_ORDEM,
 )
 
-STATUS_OPCOES = [
-    {"label": s, "value": s}
-    for s in ["Interessado", "Currículo Enviado", "Entrevista Agendada",
-              "Em Processo", "Oferta", "Aceito", "Rejeitado"]
-]
+STATUS_OPCOES = [{"label": s, "value": s} for s in STATUS_ORDEM]
 
 
 def _info_campo(label, valor):
@@ -131,17 +127,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                     children=dmc.Paper(
                         p="lg", radius="md", shadow="sm", withBorder=True,
                         children=[
-                            html.Div(
-                                dmc.Text("📄 Descrição", fw=600, fz="lg", c=COR_TEXTO),
-                                id="btn-toggle-descricao",
-                                n_clicks=0,
-                                style={"cursor": "pointer", "marginBottom": "12px"},
-                            ),
-                            dmc.Collapse(
-                                id="collapse-descricao",
-                                opened=False,
-                                children=_textarea_leitura(vaga.get("descricao")),
-                            ),
+                            dmc.Text("📄 Descrição", fw=600, fz="lg", c=COR_TEXTO, mb="md"),
+                            _textarea_leitura(vaga.get("descricao")),
                         ],
                     ),
                 ),
@@ -150,17 +137,8 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                     children=dmc.Paper(
                         p="lg", radius="md", shadow="sm", withBorder=True,
                         children=[
-                            html.Div(
-                                dmc.Text("📝 Notas", fw=600, fz="lg", c=COR_TEXTO),
-                                id="btn-toggle-notas",
-                                n_clicks=0,
-                                style={"cursor": "pointer", "marginBottom": "12px"},
-                            ),
-                            dmc.Collapse(
-                                id="collapse-notas",
-                                opened=False,
-                                children=_textarea_leitura(vaga.get("notas")),
-                            ),
+                            dmc.Text("📝 Notas", fw=600, fz="lg", c=COR_TEXTO, mb="md"),
+                            _textarea_leitura(vaga.get("notas")),
                         ],
                     ),
                 ),
@@ -200,15 +178,36 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                     children=dmc.Paper(
                         p="lg", radius="md", shadow="sm", withBorder=True,
                         children=[
+                            dmc.Title("Status", order=5, mb="lg"),
+                            dmc.Text("Alterar Status", fw=600, fz="md", c=COR_TEXTO, mb="sm"),
+                            dmc.Group(
+                                align="flex-end",
+                                children=[
+                                    dmc.Select(
+                                        id="status-dropdown",
+                                        label="Status",
+                                        data=STATUS_OPCOES,
+                                        value=vaga.get("status", "Interessado"),
+                                        style={"flex": 1},
+                                    ),
+                                    dmc.Button(
+                                        "Atualizar Status",
+                                        id="btn-atualizar-status",
+                                        color="teal",
+                                        variant="filled",
+                                    ),
+                                ],
+                            ),
+                            dmc.Divider(my="lg"),
                             html.Div(
-                                dmc.Text("📜 Histórico de Status", fw=600, fz="lg", c=COR_TEXTO),
+                                dmc.Text("📜 Histórico de Status", fw=600, fz="md", c=COR_TEXTO),
                                 id="btn-toggle-historico",
                                 n_clicks=0,
                                 style={"cursor": "pointer", "marginBottom": "12px"},
                             ),
                             dmc.Collapse(
                                 id="collapse-historico",
-                                opened=False,
+                                opened=True,
                                 children=html.Div(
                                     children=[
                                         html.Div([
@@ -227,33 +226,6 @@ def detalhes_vaga(vaga: dict) -> html.Div:
                                     ],
                                     style={"padding": "16px"},
                                 ),
-                            ),
-                        ],
-                    ),
-                ),
-                dmc.GridCol(
-                    span=12,
-                    children=dmc.Paper(
-                        p="lg", radius="md", shadow="sm", withBorder=True,
-                        children=[
-                            dmc.Title("Alterar Status", order=5, mb="md"),
-                            dmc.Group(
-                                align="flex-end",
-                                children=[
-                                    dmc.Select(
-                                        id="status-dropdown",
-                                        label="Status",
-                                        data=STATUS_OPCOES,
-                                        value=vaga.get("status", "Interessado"),
-                                        style={"flex": 1},
-                                    ),
-                                    dmc.Button(
-                                        "Atualizar Status",
-                                        id="btn-atualizar-status",
-                                        color="teal",
-                                        variant="filled",
-                                    ),
-                                ],
                             ),
                         ],
                     ),
@@ -311,6 +283,7 @@ def editar_vaga(n_clicks_list, vaga_id):
             dmc.Text("Vaga não encontrada", c="red"),
         ]), no_update, no_update
 
+    vaga["_tags"] = get_tags_da_vaga(vaga_id)
     salario_store = {
         "salario": vaga.get("salario") or None,
         "salario_max": vaga.get("salario_max") or None,
@@ -350,21 +323,23 @@ def excluir_vaga_detalhe(n_clicks_list, vaga_id):
 @callback(
     Output("status-dropdown", "value", allow_duplicate=True),
     Output("notification", "data", allow_duplicate=True),
+    Output("detalhe-trigger", "data", allow_duplicate=True),
     Input("btn-atualizar-status", "n_clicks"),
     State("status-dropdown", "value"),
     State("vaga-id-store", "data"),
+    State("detalhe-trigger", "data"),
     prevent_initial_call=True,
 )
-def atualizar_status(n_clicks, novo_status, vaga_id):
+def atualizar_status(n_clicks, novo_status, vaga_id, trigger):
     if not n_clicks or not novo_status or not vaga_id:
         raise PreventUpdate
 
     vaga = get_vaga(vaga_id)
     if not vaga:
-        return no_update, {"message": "Vaga não encontrada", "type": "danger"}
+        return no_update, {"message": "Vaga não encontrada", "type": "danger"}, no_update
 
     if vaga.get("status") == novo_status:
-        return no_update, {"message": "Status já está definido", "type": "info"}
+        return no_update, {"message": "Status já está definido", "type": "info"}, no_update
 
     try:
         atualizar_vaga(vaga_id, **{
@@ -384,9 +359,9 @@ def atualizar_status(n_clicks, novo_status, vaga_id):
             "notas": vaga.get("notas") or "",
             "tag_ids": [t.get("id") if isinstance(t, dict) else t for t in vaga.get("_tags", [])],
         })
-        return novo_status, {"message": "Status atualizado com sucesso!", "type": "success"}
+        return novo_status, {"message": "Status atualizado com sucesso!", "type": "success"}, (trigger or 0) + 1
     except Exception as e:
-        return no_update, {"message": f"Erro ao atualizar status: {str(e)}", "type": "danger"}
+        return no_update, {"message": f"Erro ao atualizar status: {str(e)}", "type": "danger"}, no_update
 
 
 @callback(
@@ -412,30 +387,6 @@ def refresh_apos_edicao(evento, trigger):
     if not evento:
         raise PreventUpdate
     return (trigger or 0) + 1
-
-
-@callback(
-    Output("collapse-descricao", "opened"),
-    Input("btn-toggle-descricao", "n_clicks"),
-    State("collapse-descricao", "opened"),
-    prevent_initial_call=True,
-)
-def toggle_descricao(n_clicks, is_open):
-    if not n_clicks:
-        raise PreventUpdate
-    return not is_open
-
-
-@callback(
-    Output("collapse-notas", "opened"),
-    Input("btn-toggle-notas", "n_clicks"),
-    State("collapse-notas", "opened"),
-    prevent_initial_call=True,
-)
-def toggle_notas(n_clicks, is_open):
-    if not n_clicks:
-        raise PreventUpdate
-    return not is_open
 
 
 @callback(

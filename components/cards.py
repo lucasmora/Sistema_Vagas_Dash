@@ -1,7 +1,7 @@
 import dash_mantine_components as dmc
 from dash import dcc
 
-from styles import STATUS_CORES, COR_TEXTO_MUTED, COR_BORDA
+from styles import STATUS_CORES, COR_BORDA
 
 
 def _formatar_salario(vaga: dict) -> str:

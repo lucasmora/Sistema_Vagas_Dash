@@ -5,24 +5,6 @@ import dash_mantine_components as dmc
 from styles import COR_TEXTO_SEC
 
 
-def _text_input(ide: str, placeholder: str = "", value: str = ""):
-    return dmc.TextInput(
-        id=ide,
-        placeholder=placeholder,
-        value=value or "",
-    )
-
-
-def _number_input(ide: str, placeholder: str = "", value=None):
-    return dmc.NumberInput(
-        id=ide,
-        placeholder=placeholder,
-        value=value if value is not None else None,
-        min=0,
-        allowNegative=False,
-    )
-
-
 def iso_para_br(value):
     """Converte data ISO (YYYY-MM-DD) ou objeto date para DD/MM/YYYY.
     Se o valor já estiver em outro formato, devolve-o intacto."""
@@ -59,29 +41,6 @@ def _date_input(ide: str, label: str = None, value=None):
         valueFormat="DD/MM/YYYY",
         clearable=True,
         placeholder="DD/MM/AAAA",
-    )
-
-
-def _select(ide: str, opcoes: list, placeholder: str = "Selecione...",
-            value=None):
-    return dmc.Select(
-        id=ide,
-        data=opcoes,
-        placeholder=placeholder,
-        clearable=True,
-        allowDeselect=True,
-        value=value or None,
-    )
-
-
-def _dropdown_multi(ide: str, opcoes: list, placeholder: str = "Selecione...",
-                    value=None):
-    return dmc.MultiSelect(
-        id=ide,
-        data=opcoes,
-        placeholder=placeholder,
-        clearable=True,
-        value=value or [],
     )
 
 
@@ -171,6 +130,7 @@ def form_portal(portal: dict = None):
                         label="Nome",
                         placeholder="Ex: LinkedIn",
                         value=portal["nome"] if editando else "",
+                        withAsterisk=True,
                     ),
                     dmc.TextInput(
                         id="form-portal-url",

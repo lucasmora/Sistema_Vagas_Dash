@@ -1,8 +1,9 @@
-from dash import html, dcc, callback, Input, Output, State
+from dash import html, dcc, callback, Input, Output
 import dash_mantine_components as dmc
 
 from db.models import listar_vagas, listar_tags, listar_portais
 from components.cards import vaga_card
+from styles import STATUS_ORDEM
 
 
 def _vaga_item(vaga: dict) -> html.Div:
@@ -10,8 +11,7 @@ def _vaga_item(vaga: dict) -> html.Div:
 
 
 def layout() -> html.Div:
-    statuses = ["Interessado", "Currículo Enviado", "Entrevista Agendada",
-                "Em Processo", "Oferta", "Aceito", "Rejeitado"]
+    statuses = STATUS_ORDEM
 
     return html.Div([
         dcc.Store(id="vagas-trigger", data=0),
@@ -102,10 +102,10 @@ def atualizar_opcoes_tags(trigger):
 @callback(
     Output("vagas-lista", "children"),
     Input("vagas-trigger", "data"),
-    State("filtro-status", "value"),
-    State("filtro-portal", "value"),
-    State("filtro-tag", "value"),
-    State("filtro-busca", "value"),
+    Input("filtro-status", "value"),
+    Input("filtro-portal", "value"),
+    Input("filtro-tag", "value"),
+    Input("filtro-busca", "value"),
 )
 def render_lista_vagas(_trigger, status_filtro, portal_filtro, tag_filtro, busca):
     vagas = listar_vagas(

@@ -2,7 +2,7 @@ from dash import html, dcc, callback, Input, Output, State, ALL, callback_contex
 import dash_mantine_components as dmc
 from dash.exceptions import PreventUpdate
 
-from db.models import listar_tags, get_tag, criar_tag, renomear_tag, excluir_tag
+from db.models import listar_tags, get_tag, criar_tag, renomear_tag, excluir_tag, tag_existe
 from components.forms import form_tag
 
 
@@ -213,6 +213,10 @@ def salvar_tag(n_clicks, n_submit, nome, edit_id, trigger):
             }
         msg = f"Tag '{nome.strip().lower()}' atualizada!"
     else:
+        if tag_existe(nome):
+            return no_update, no_update, {
+                "message": "Já existe uma tag com esse nome", "type": "danger",
+            }
         criar_tag(nome)
         msg = f"Tag '{nome.strip().lower()}' adicionada!"
     return trigger + 1, None, {"message": msg, "type": "success"}

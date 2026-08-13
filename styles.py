@@ -1,7 +1,6 @@
 # Design system adaptado ao Dash Mantine Components (dark)
 
 # Tokens de cor mapeados para as CSS variables do Mantine dark theme
-COR_FUNDO = "var(--mantine-color-body)"
 COR_SUPERFICIE = "var(--mantine-color-dark-6)"
 COR_ELEVADO = "var(--mantine-color-dark-5)"
 COR_BORDA_CLARA = "var(--mantine-color-dark-4)"
@@ -25,57 +24,25 @@ STATUS_CORES = {
     "Rejeitado": "#FF5F6D",
 }
 
-PIPELINE_ORDEM = [
+STATUS_ORDEM = [
     "Interessado",
     "Currículo Enviado",
     "Entrevista Agendada",
     "Em Processo",
     "Oferta",
     "Aceito",
+    "Rejeitado",
 ]
 
-SOMBRA_NIVEL_1 = "var(--mantine-shadow-sm)"
+PIPELINE_ORDEM = [s for s in STATUS_ORDEM if s != "Rejeitado"]
 
 # Espaçamento Airy
 ESP_XS = "4px"
-ESP_SM = "8px"
 ESP_MD = "16px"
-ESP_LG = "24px"
-ESP_XL = "32px"
 
-INPUT_PADDING_Y = "10px"
-INPUT_PADDING_X = "14px"
-
-RAIO_BORDA = "var(--mantine-radius-md)"
 RAIO_BORDA_PILL = "9999px"
 
-CARD_STYLE = {
-    "backgroundColor": COR_SUPERFICIE,
-    "border": f"1px solid {COR_BORDA_CLARA}",
-    "borderRadius": RAIO_BORDA,
-    "boxShadow": SOMBRA_NIVEL_1,
-    "padding": f"{ESP_LG} {ESP_XL}",
-}
-
-INPUT_STYLE = {
-    "backgroundColor": COR_ELEVADO,
-    "border": f"1px solid {COR_BORDA}",
-    "borderRadius": RAIO_BORDA,
-    "color": COR_TEXTO,
-    "padding": f"{INPUT_PADDING_Y} {INPUT_PADDING_X}",
-    "fontSize": "0.875rem",
-    "height": "auto",
-    "width": "100%",
-    "transition": "border-color 0.15s ease, box-shadow 0.15s ease",
-}
-
-SELECT_STYLE = {
-    **INPUT_STYLE,
-    "appearance": "auto",
-}
-
 SIDEBAR_WIDTH = 260
-CONTENT_PADDING = "32px 40px"
 
 
 def badge_style(status: str) -> dict:
@@ -90,21 +57,6 @@ def badge_style(status: str) -> dict:
         "fontWeight": 500,
         "display": "inline-flex",
         "alignItems": "center",
-    }
-
-
-def tag_style() -> dict:
-    return {
-        "backgroundColor": f"{COR_DESTAQUE}18",
-        "color": COR_DESTAQUE,
-        "padding": f"{ESP_XS} {ESP_SM}",
-        "borderRadius": RAIO_BORDA_PILL,
-        "fontSize": "0.75rem",
-        "fontWeight": 500,
-        "marginRight": "6px",
-        "marginBottom": "4px",
-        "display": "inline-block",
-        "border": f"1px solid {COR_DESTAQUE}30",
     }
 
 
